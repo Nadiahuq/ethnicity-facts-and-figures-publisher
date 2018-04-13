@@ -1,5 +1,14 @@
 /**
  * Created by Tom.Ridd on 08/05/2017.
+
+    Chartbuilder comes with three javascript files
+
+    "rd-chart-objects.js" contains the factory method that turns data and settings from the builder into a chartObject
+
+    "rd-graph.js" is the module that renders a chartObject and is used frontend and backend
+
+    "rd-data-tools.js" contains methods that support both these files and also the Table Builder
+
  */
 var defaultParentColor = '#2B8CC4';
 var defaultChildColor = '#B3CBD9';
