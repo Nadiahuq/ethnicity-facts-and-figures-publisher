@@ -23,11 +23,11 @@ THE PARENT COLOUR SECTION IS TO DO WITH DISPLAY, NOT DATA CONTENT
 var defaultParentColor = '#2B8CC4';
 var defaultChildColor = '#B3CBD9';
 var VERSION = '1.1'; // panel charts include sort option
-var BAR_CHART = 'bar'
-var LINE_CHART = 'line'
-var COMPONENT_CHART = 'component'
-var PANEL_BAR_CHART = 'panel_bar'
-var PANEL_LINE_CHART = 'panel_line'
+var BAR_CHART = 'bar';
+var LINE_CHART = 'line';
+var COMPONENT_CHART = 'component';
+var PANEL_BAR_CHART = 'panel_bar';
+var PANEL_LINE_CHART = 'panel_line';
 
 
 
@@ -84,6 +84,49 @@ function buildChartObject(data, chart_type, value_column,
         default:
             return null;
     }
+}
+
+
+function buildChartObjectWithDict(json) {
+    function valOrDefault(val, defaultValue) {
+        return val in json ? json[val] : defaultValue;
+    }
+    var data = valOrDefault('data', null);
+    var chart_type = valOrDefault('chart_type', null);
+    var value_column = valOrDefault('value_column', null);
+    var category_column = valOrDefault('category_column', null);
+
+    if (!data || !chart_type || !value_column || !category_column) {
+        return null;
+    }
+
+    // Optional
+    var parent_column = valOrDefault('parent_column', NONE_VALUE);
+    var secondary_column = valOrDefault('secondary_column', NONE_VALUE);
+    var category_order_column = valOrDefault('category_order_column', NONE_VALUE);
+    var secondary_order_column = valOrDefault('secondary_order_column', NONE_VALUE);
+
+    var chart_title = valOrDefault('chart_title', '');
+    var x_axis_label = valOrDefault('x_axis_label', '');
+    var y_axis_label = valOrDefault('y_axis_label', '');
+
+    var number_format_multiplier = valOrDefault('number_format_multiplier', 1);
+    var number_format_minimum = valOrDefault('number_format_minimum', 0);
+    var number_format_maximum = valOrDefault('number_format_maximum', 100);
+    var number_format_prefix = valOrDefault('number_format_prefix', '');
+    var number_format_suffix = valOrDefault('number_format_suffix', '%');
+    var number_format = {
+        'multiplier': number_format_multiplier,
+        'prefix': number_format_prefix,
+        'suffix': number_format_suffix,
+        'min': number_format_minimum,
+        'max': number_format_maximum
+    };
+    var null_column_value = valOrDefault('null_column_value', NONE_VALUE);
+    return buildChartObject(data, chart_type, value_column,
+        category_column, secondary_column, parent_column, category_order_column, secondary_order_column,
+        chart_title, x_axis_label, y_axis_label, number_format,
+        null_column_value);
 }
 
 // -----------------------------------------------------------------------------------------
@@ -496,7 +539,16 @@ if(typeof exports !== 'undefined') {
     var getColumnIndex = builderTools.getColumnIndex;
     var NONE_VALUE = builderTools.NONE_VALUE;
 
-    exports.barchartObject = barchartObject;
+    exports.buildChartObject = buildChartObject;
+    exports.buildChartObjectWithDict = buildChartObjectWithDict;
+    exports.BAR_CHART = BAR_CHART;
+    exports.LINE_CHART = LINE_CHART;
+    exports.COMPONENT_CHART = COMPONENT_CHART;
+    exports.PANEL_BAR_CHART = PANEL_BAR_CHART;
+    exports.PANEL_LINE_CHART = PANEL_LINE_CHART;
+
+
+    // exports.barchartObject = barchartObject;
     exports.linechartObject = linechartObject;
     exports.componentChartObject = componentChartObject;
     exports.panelLinechartObject = panelLinechartObject;
