@@ -2,6 +2,8 @@
  * Created by Tom.Ridd on 08/05/2017.
  */
 
+var NONE_VALUE = '[None]';
+
 function filterData(data, filter) {
 
     var indexFilter = textFilterToIndexFilter(data, filter);
@@ -243,9 +245,9 @@ if(typeof exports !== 'undefined') {
     exports.textToData = textToData;
 
     exports.nonNumericData = nonNumericData;
-
     exports.index_of_column_named = index_of_column_named;
 
     exports.ETHNICITY_ERROR = ETHNICITY_ERROR;
     exports.VALUE_ERROR = VALUE_ERROR;
+    exports.NONE_VALUE = NONE_VALUE;
 }
