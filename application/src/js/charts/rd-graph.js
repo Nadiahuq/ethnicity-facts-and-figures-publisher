@@ -3,6 +3,8 @@
 
 rd-graph renders chartObjects according to the requirements that were identified during the ethnicity facts & figures project
 
+ It is used both frontend and backend
+
 specifically...
 - rendering methods for all chart types (bar, line, component, panel bar, panel line) 
 - render bar-charts with parent-child relationships correctly
@@ -14,8 +16,6 @@ specifically...
     - labels and tooltips formatted with correct decimal places for series (2 to be displayed as 2.0 if we have a 1 d.p value, 1.9, in series)
     - years displayed in yyyy form without decimal places
  */
-
-
 
 
 
