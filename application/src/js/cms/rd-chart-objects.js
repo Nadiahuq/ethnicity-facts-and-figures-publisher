@@ -547,9 +547,6 @@ if(typeof exports !== 'undefined') {
     exports.PANEL_BAR_CHART = PANEL_BAR_CHART;
     exports.PANEL_LINE_CHART = PANEL_LINE_CHART;
 
-
-    // exports.barchartObject = barchartObject;
-    exports.linechartObject = linechartObject;
     exports.componentChartObject = componentChartObject;
     exports.panelLinechartObject = panelLinechartObject;
     exports.panelBarchartObject = panelBarchartObject;
