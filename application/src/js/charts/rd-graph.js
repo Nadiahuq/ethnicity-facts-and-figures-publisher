@@ -1,20 +1,20 @@
 /**
  * Created by Tom.Ridd on 05/05/2017.
 
-rd-graph renders chartObjects according to the requirements that were identified during the ethnicity facts & figures project
+ rd-graph renders chartObjects according to the requirements that were identified during the ethnicity facts & figures project
 
  It is used both frontend and backend
 
-specifically...
-- rendering methods for all chart types (bar, line, component, panel bar, panel line) 
-- render bar-charts with parent-child relationships correctly
-    -  in a parent-child chart ensure all parent bars are visible regardless of whether we have data for them
-- render images for missing data according to reason (confidential, sample too small, data not collected, not applicable)
+ specifically...
+ - rendering methods for all chart types (bar, line, component, panel bar, panel line)
+ - render bar-charts with parent-child relationships correctly
+ -  in a parent-child chart ensure all parent bars are visible regardless of whether we have data for them
+ - render images for missing data according to reason (confidential, sample too small, data not collected, not applicable)
 
-- formatting
-    - tooltips formatted according to content of data point
-    - labels and tooltips formatted with correct decimal places for series (2 to be displayed as 2.0 if we have a 1 d.p value, 1.9, in series)
-    - years displayed in yyyy form without decimal places
+ - formatting
+ - tooltips formatted according to content of data point
+ - labels and tooltips formatted with correct decimal places for series (2 to be displayed as 2.0 if we have a 1 d.p value, 1.9, in series)
+ - years displayed in yyyy form without decimal places
  */
 
 
@@ -22,7 +22,7 @@ specifically...
 // ------------------ PUBLIC ------------------------------------------------
 
 function drawChart(container_id, chartObject) {
-    if(chartObject) {
+    if (chartObject) {
         if (chartObject.type === 'bar') {
             return barchart(container_id, chartObject);
         } else if (chartObject.type === 'line') {
@@ -40,10 +40,6 @@ function drawChart(container_id, chartObject) {
 // --------------------------------------------------------------------------
 
 
-
-
-
-
 // ---------------------------------------------------------------------------
 // HIGHCHARTS GENERATORS
 // convert  a chartObject into a HighCharts object
@@ -53,7 +49,9 @@ function preprocessChartObject(chartObject) {
     // Amend chart data to correct for format and missing data
     adjustChartObjectForMissingData(chartObject);
     adjustChartObjectForFormat(chartObject);
-    if(chartObject.type === 'bar') { adjustParents(chartObject); }
+    if (chartObject.type === 'bar') {
+        adjustParents(chartObject);
+    }
     setDecimalPlaces(chartObject);
 }
 
@@ -64,19 +62,20 @@ function preprocessChartObject(chartObject) {
 function barchart(container_id, chartObject) {
     return Highcharts.chart(container_id, barchartHighchartObject(chartObject));
 }
+
 function barchartHighchartObject(chartObject) {
     preprocessChartObject(chartObject);
 
     return {
         colors: setColour(chartObject),
         chart: {
-            type:'bar',
+            type: 'bar',
             height: setHeight(chartObject)
         },
         title: {
             text: chartObject.title.text,
             style: {
-              color: "black"
+                color: "black"
             }
         },
         xAxis: {
@@ -85,10 +84,10 @@ function barchartHighchartObject(chartObject) {
                 text: chartObject.yAxis.title.text
             },
             labels: {
-                formatter:function() {
-                    return $.inArray(this.value,chartObject.parents) < 0 ? this.value : '<b>' + this.value + '</b>';
+                formatter: function () {
+                    return $.inArray(this.value, chartObject.parents) < 0 ? this.value : '<b>' + this.value + '</b>';
                 },
-                style: { textOverflow: 'none', color: "black" }
+                style: {textOverflow: 'none', color: "black"}
             }
         },
         yAxis: {
@@ -96,8 +95,8 @@ function barchartHighchartObject(chartObject) {
                 text: chartObject.xAxis.title.text
             },
             labels: {
-              autoRotation: "off",
-              style: {color: "black"}
+                autoRotation: "off",
+                style: {color: "black"}
             }
         },
         credits: {
@@ -108,48 +107,48 @@ function barchartHighchartObject(chartObject) {
         },
         plotOptions: {
             bar: {
-            dataLabels: {
-              enabled: true,
-                useHTML: true,
-              color: ['#000','#fff'],
-              style: {
-                textOutline: false,
-                fontSize: chartObject.series.length <= 1 ? "17px" : "14px",
-                fontFamily: "nta",
-                fontWeight: "400"
-              },
-              formatter: function() {
-                  if(this.point['text'] === undefined) {
-                      // for legacy charts
-                      if(this.y > 0.0001) {
-                          return chartObject.number_format.prefix +
-                            formatNumberWithDecimalPlaces(this.y, chartObject.decimalPlaces) +
-                            chartObject.number_format.suffix;
-                      } else {
-                          return 'Not enough data';
-                      }
-                  } else if(this.point.text === 'number') {
-                      // for numeric points
-                    return chartObject.number_format.prefix +
-                        formatNumberWithDecimalPlaces(this.y, chartObject.decimalPlaces) +
-                        chartObject.number_format.suffix;
-                } else {
-                      // for text points
-                    return this.point.text;
+                dataLabels: {
+                    enabled: true,
+                    useHTML: true,
+                    color: ['#000', '#fff'],
+                    style: {
+                        textOutline: false,
+                        fontSize: chartObject.series.length <= 1 ? "17px" : "14px",
+                        fontFamily: "nta",
+                        fontWeight: "400"
+                    },
+                    formatter: function () {
+                        if (this.point['text'] === undefined) {
+                            // for legacy charts
+                            if (this.y > 0.0001) {
+                                return chartObject.number_format.prefix +
+                                    formatNumberWithDecimalPlaces(this.y, chartObject.decimalPlaces) +
+                                    chartObject.number_format.suffix;
+                            } else {
+                                return 'Not enough data';
+                            }
+                        } else if (this.point.text === 'number') {
+                            // for numeric points
+                            return chartObject.number_format.prefix +
+                                formatNumberWithDecimalPlaces(this.y, chartObject.decimalPlaces) +
+                                chartObject.number_format.suffix;
+                        } else {
+                            // for text points
+                            return this.point.text;
+                        }
+                    },
+                    rotation: 0
                 }
-              },
-              rotation: 0
-            }
-          },
-          series: {
-            pointPadding: chartObject.series.length > 1 ? 0 : .075,
-            groupPadding: 0.1,
-            states: {
-                hover: {
-                    enabled: false
+            },
+            series: {
+                pointPadding: chartObject.series.length > 1 ? 0 : .075,
+                groupPadding: 0.1,
+                states: {
+                    hover: {
+                        enabled: false
+                    }
                 }
             }
-          }
         },
         tooltip: {
             enabled: false
@@ -158,12 +157,10 @@ function barchartHighchartObject(chartObject) {
         navigation: {
             buttonOptions: {
                 enabled: false
-          }
+            }
         }
     }
 }
-
-
 
 
 // ----------------------------------
@@ -187,14 +184,14 @@ function linechartHighchartObject(chartObject) {
         }
     };
 
-    for(var i = 0; i < chartObject.series.length; i++) {
-        chartObject.series[i].marker = { symbol: 'circle' };
+    for (var i = 0; i < chartObject.series.length; i++) {
+        chartObject.series[i].marker = {symbol: 'circle'};
     }
 
-    if(chartObject.number_format.min !== '') {
+    if (chartObject.number_format.min !== '') {
         yaxis['min'] = chartObject.number_format.min;
     }
-    if(chartObject.number_format.max !== '') {
+    if (chartObject.number_format.max !== '') {
         yaxis['max'] = chartObject.number_format.max;
     }
 
@@ -222,7 +219,7 @@ function linechartHighchartObject(chartObject) {
         navigation: {
             buttonOptions: {
                 enabled: false
-          }
+            }
         }
     };
 }
@@ -231,16 +228,15 @@ function lineChartTooltip(chartObject) {
 
     return {
         pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>'
-            + chartObject.number_format.prefix
-            + decimalPointFormat('point.y', chartObject.decimalPlaces)
-            + chartObject.number_format.suffix + '</b><br/>',
-        formatter: function() { return '<span class="first">' + this.x + '</span><br><span class="last">' + this.series.name + ': ' + this.y + '</span>' },
+        + chartObject.number_format.prefix
+        + decimalPointFormat('point.y', chartObject.decimalPlaces)
+        + chartObject.number_format.suffix + '</b><br/>',
+        formatter: function () {
+            return '<span class="first">' + this.x + '</span><br><span class="last">' + this.series.name + ': ' + this.y + '</span>'
+        },
         useHTML: true
-     }
+    }
 }
-
-
-
 
 
 // ----------------------------------
@@ -257,12 +253,12 @@ function componentChartHighchartObject(chartObject) {
 
     return {
         chart: {
-            type:'bar',
+            type: 'bar',
             height: setHeight(chartObject)
         },
         colors: setColour(chartObject),
         title: {
-            text:  chartObject.title.text
+            text: chartObject.title.text
         },
         xAxis: {
             categories: chartObject.xAxis.categories,
@@ -295,29 +291,28 @@ function componentChartHighchartObject(chartObject) {
         navigation: {
             buttonOptions: {
                 enabled: false
-          }
+            }
         }
     };
 }
 
 function componentChartTooltip(chartObject) {
-    if(chartObject.series.length > 1)
-    {
-        return { pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>'
-        + chartObject.number_format.prefix
-        + decimalPointFormat('point.y', chartObject.decimalPlaces)
-        + chartObject.number_format.suffix + '</b><br/>' }
+    if (chartObject.series.length > 1) {
+        return {
+            pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>'
+            + chartObject.number_format.prefix
+            + decimalPointFormat('point.y', chartObject.decimalPlaces)
+            + chartObject.number_format.suffix + '</b><br/>'
+        }
     } else {
-        return { pointFormat: '<span style="color:{point.color}">\u25CF</span><b>'
-        + chartObject.number_format.prefix
-        + decimalPointFormat('point.y', chartObject.decimalPlaces)
-        + chartObject.number_format.suffix + '</b><br/>'}
+        return {
+            pointFormat: '<span style="color:{point.color}">\u25CF</span><b>'
+            + chartObject.number_format.prefix
+            + decimalPointFormat('point.y', chartObject.decimalPlaces)
+            + chartObject.number_format.suffix + '</b><br/>'
+        }
     }
 }
-
-
-
-
 
 
 // ----------------------------------
@@ -326,32 +321,41 @@ function componentChartTooltip(chartObject) {
 
 
 function panelBarchart(container_id, chartObject) {
+    var panelChart = panelBarchartHighchartsObject(chartObject);
 
+    // build scaffolding
     var internal_divs = chartObject.title === '' ? '' : "<div class='small-chart-title'>" + chartObject.title + "</div>";
-
-    var max = chartMax(chartObject);
-
-    for(var c in chartObject.panels) {
+    for (var c in chartObject.panels) {
         internal_divs = internal_divs + "<div id=\"" + container_id + "_" + c + "\" class=\"chart-container column-one-" + (chartObject.panels.length > 2 ? 'third' : 'half') + "\"></div>";
     }
     $('#' + container_id).html(internal_divs);
 
+    // render charts
     var charts = [];
-    for(c in chartObject.panels) {
-        var panel_container_id = container_id + "_" + c;
-        var panelChart = chartObject.panels[c];
-        charts.push(smallBarchart(panel_container_id, panelChart, max));
+    for (c in chartObject.panels) {
+        charts.push(smallBarchart(container_id + "_" + c, panelChart.panels[c]));
     }
     return charts;
 }
 
+function panelBarchartHighchartsObject(chartObject) {
+    var max = chartMax(chartObject);
+    return {
+        'title': chartObject.title,
+        'max': chartObject.max,
+        'panels': _.map(chartObject.panels, function (panel) {
+            return smallBarchartHighchartsObject(panel, max)
+        })
+    }
+}
+
 function chartMax(panelChartObject) {
     var max = 0;
-    for (var i=0; i<panelChartObject.panels.length; i++) {
+    for (var i = 0; i < panelChartObject.panels.length; i++) {
         var panel = panelChartObject.panels[i];
-        for (var j=0; j < panel.series.length; j++) {
+        for (var j = 0; j < panel.series.length; j++) {
             var series = panel.series[j];
-            for (var k=0; k < series.data.length; k++) {
+            for (var k = 0; k < series.data.length; k++) {
                 // Highcharts accepts either straight numbers or simple objects as their data points
                 // We changed part way through
                 var item = Number(series.data[k]);
@@ -365,141 +369,144 @@ function chartMax(panelChartObject) {
     return max;
 }
 
-function smallBarchart(container_id, chartObject, max) {
+function smallBarchartHighchartsObject(chartObject, max) {
     preprocessChartObject(chartObject);
-
     var showLastLabel = small_barchart_show_last_label(chartObject);
 
-    var chart = Highcharts.chart(container_id, {
-            colors: setColour(chartObject),
-            chart: {
-                type: 'bar',
-                height: setHeight(chartObject),
-                events: {
-                    redraw: function (e) {
-                        var data = e.target.series[0].data;
-                        var container = e.target.series[0].chart.container;
-                        var $dataLabels = $(container).find('g.highcharts-data-labels');
-                        var $xLabels = $(container).find('g.highcharts-yaxis-labels');
+    return {
+        colors: setColour(chartObject),
+        chart: {
+            type: 'bar',
+            height: setHeight(chartObject),
+            events: {
+                redraw: function (e) {
+                    var data = e.target.series[0].data;
+                    var container = e.target.series[0].chart.container;
+                    var $dataLabels = $(container).find('g.highcharts-data-labels');
+                    var $xLabels = $(container).find('g.highcharts-yaxis-labels');
 
-                        // add precent sign to last x axis labels when table is displaying precentages
-                        if (chartObject.number_format.suffix === '%') {
-                            if($xLabels.find('text').eq(-2).text() === '100') {
-                                $xLabels.find('text').eq(-2).text('100%');
-                            }
-                            $(container).find('g.highcharts-yaxis-grid').find('path').last().hide();
+                    // add precent sign to last x axis labels when table is displaying precentages
+                    if (chartObject.number_format.suffix === '%') {
+                        if ($xLabels.find('text').eq(-2).text() === '100') {
+                            $xLabels.find('text').eq(-2).text('100%');
                         }
-
-                        // add inline styling to data labels when they are justified to the left edge of the bar
-                        for (var i = 0; i < data.length; i++) {
-                            if (data[i].isLabelJustified) {
-                                $dataLabels.find('.highcharts-data-label')
-                                    .eq(i)
-                                    .find('text')
-                                    .attr('style', 'fill: #fff;');
-                            }
-                            else {
-                                $dataLabels.find('.highcharts-data-label')
-                                    .eq(i)
-                                    .find('text')
-                                    .attr('style', 'fill: #000;');
-                            }
-                        }
-                        e.target.render();
+                        $(container).find('g.highcharts-yaxis-grid').find('path').last().hide();
                     }
-                }
-            },
-            title: {
-                text: chartObject.title.text
-            },
-            xAxis: {
-                categories: chartObject.xAxis.categories,
-                labels: {
-                    items: {
-                        style: {
-                            left: '100px'
-                        }
-                    },
-                    style: {
-                        textOverflow: 'none',
-                        color: 'black',
-                        fontSize: '16px'
-                    },
-                    y: 5
-                }
-            },
-            yAxis: {
-                max: max * 1.05,
-                title: {
-                    text: ""
-                },
-                showLastLabel:showLastLabel
-            },
-            credits: {
-                enabled: false
-            },
-            legend: {
-                enabled: (chartObject.series.length > 1)
-            },
-            plotOptions: {
-                bar: {
-                    dataLabels: {
-                        enabled: true,
-                        color: ['#000', '#fff'],
-                        verticalAlign: 'middle',
-                        useHTML: true,
-                        y: 3,
-                        style: {
-                            textOutline: false,
-                            fontSize: chartObject.series.length <= 1 ? "17px" : "14px",
-                            fontFamily: "nta",
-                            fontWeight: "400"
-                        },
-                        formatter:  function() {
 
-                              if(this.point['text'] === undefined) {
-                                  // for legacy charts
-                                  if(this.y > 0.0001) {
-                                      return chartObject.number_format.prefix +
-                                        formatNumberWithDecimalPlaces(this.y, chartObject.decimalPlaces) +
-                                        chartObject.number_format.suffix;
-                                  } else {
-                                      return 'Not enough data';
-                                  }
-                              } else if(this.point.text === 'number') {
-                                  // for numeric points
+                    // add inline styling to data labels when they are justified to the left edge of the bar
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].isLabelJustified) {
+                            $dataLabels.find('.highcharts-data-label')
+                                .eq(i)
+                                .find('text')
+                                .attr('style', 'fill: #fff;');
+                        }
+                        else {
+                            $dataLabels.find('.highcharts-data-label')
+                                .eq(i)
+                                .find('text')
+                                .attr('style', 'fill: #000;');
+                        }
+                    }
+                    e.target.render();
+                }
+            }
+        },
+        title: {
+            text: chartObject.title.text
+        },
+        xAxis: {
+            categories: chartObject.xAxis.categories,
+            labels: {
+                items: {
+                    style: {
+                        left: '100px'
+                    }
+                },
+                style: {
+                    textOverflow: 'none',
+                    color: 'black',
+                    fontSize: '16px'
+                },
+                y: 5
+            }
+        },
+        yAxis: {
+            max: max * 1.05,
+            title: {
+                text: ""
+            },
+            showLastLabel: showLastLabel
+        },
+        credits: {
+            enabled: false
+        },
+        legend: {
+            enabled: (chartObject.series.length > 1)
+        },
+        plotOptions: {
+            bar: {
+                dataLabels: {
+                    enabled: true,
+                    color: ['#000', '#fff'],
+                    verticalAlign: 'middle',
+                    useHTML: true,
+                    y: 3,
+                    style: {
+                        textOutline: false,
+                        fontSize: chartObject.series.length <= 1 ? "17px" : "14px",
+                        fontFamily: "nta",
+                        fontWeight: "400"
+                    },
+                    formatter: function () {
+
+                        if (this.point['text'] === undefined) {
+                            // for legacy charts
+                            if (this.y > 0.0001) {
                                 return chartObject.number_format.prefix +
                                     formatNumberWithDecimalPlaces(this.y, chartObject.decimalPlaces) +
                                     chartObject.number_format.suffix;
                             } else {
-
-                                  // for text points
-                                return this.point.text;
+                                return 'Not enough data';
                             }
-                          },
-                        rotation: 0
-                    },
-                    borderWidth: 0
-                },
-                series: {
-                    pointPadding: chartObject.series.length > 1 ? 0 : .075,
-                    groupPadding: 0.1,
-                    states: {
-                        hover: {
-                            enabled: false
+                        } else if (this.point.text === 'number') {
+                            // for numeric points
+                            return chartObject.number_format.prefix +
+                                formatNumberWithDecimalPlaces(this.y, chartObject.decimalPlaces) +
+                                chartObject.number_format.suffix;
+                        } else {
+
+                            // for text points
+                            return this.point.text;
                         }
+                    },
+                    rotation: 0
+                },
+                borderWidth: 0
+            },
+            series: {
+                pointPadding: chartObject.series.length > 1 ? 0 : .075,
+                groupPadding: 0.1,
+                states: {
+                    hover: {
+                        enabled: false
                     }
                 }
-            },
-            tooltip: {
-                enabled: false
-            },
-            series: chartObject.series,
-            navigation: {
-                buttonOptions: {enabled: false}
             }
+        },
+        tooltip: {
+            enabled: false
+        },
+        series: chartObject.series,
+        navigation: {
+            buttonOptions: {enabled: false}
         }
-    );
+    }
+}
+
+function smallBarchart(container_id, chartObject) {
+    console.log(chartObject)
+    var chart = Highcharts.chart(container_id,  chartObject);
     chart.redraw();
 
     return chart;
@@ -515,10 +522,6 @@ function small_barchart_show_last_label(chartObject) {
 }
 
 
-
-
-
-
 // ----------------------------------
 // PANEL LINE CHART
 // ----------------------------------
@@ -531,8 +534,8 @@ function panelLinechart(container_id, chartObject) {
 
     for (var i = 0; i < chartObject.panels.length; i++) {
         for (var j = 0; j < chartObject.panels[i].series.length; j++) {
-            for(var k = 0; k < chartObject.panels[i].series[j].data.length; k++) {
-                max = max < chartObject.panels[i].series[j].data[k] ? chartObject.panels[i].series[j].data[k] : max ;
+            for (var k = 0; k < chartObject.panels[i].series[j].data.length; k++) {
+                max = max < chartObject.panels[i].series[j].data[k] ? chartObject.panels[i].series[j].data[k] : max;
             }
         }
     }
@@ -540,23 +543,24 @@ function panelLinechart(container_id, chartObject) {
     min = max;
     for (var i = 0; i < chartObject.panels.length; i++) {
         for (var j = 0; j < chartObject.panels[i].series.length; j++) {
-            for(var k = 0; k < chartObject.panels[i].series[j].data.length; k++) {
-                min = chartObject.panels[i].series[j].data[k] < min ? chartObject.panels[i].series[j].data[k] : min ;
+            for (var k = 0; k < chartObject.panels[i].series[j].data.length; k++) {
+                min = chartObject.panels[i].series[j].data[k] < min ? chartObject.panels[i].series[j].data[k] : min;
             }
         }
     }
 
-    for(var c in chartObject.panels) {
-        internal_divs = internal_divs + "<div id=\"" + container_id + "_" + c + "\" class=\"chart-container column-one-"+ (chartObject.panels.length > 2 ? 'third' : 'half') +"\"></div>";
+    for (var c in chartObject.panels) {
+        internal_divs = internal_divs + "<div id=\"" + container_id + "_" + c + "\" class=\"chart-container column-one-" + (chartObject.panels.length > 2 ? 'third' : 'half') + "\"></div>";
     }
     $('#' + container_id).addClass('panel-line-chart').html(internal_divs);
 
     var charts = [];
-    for(c in chartObject.panels) {
+    for (c in chartObject.panels) {
         var panel_container_id = container_id + "_" + c;
         var panelChart = chartObject.panels[c];
-        charts.push(smallLinechart(panel_container_id, panelChart, max,  min));
-    };
+        charts.push(smallLinechart(panel_container_id, panelChart, max, min));
+    }
+    ;
     return charts;
 }
 
@@ -578,14 +582,14 @@ function smallLinechart(container_id, chartObject, max, min) {
         min: min
     };
 
-    for(var i = 0; i < chartObject.series.length; i++) {
-        chartObject.series[i].marker = { symbol: 'circle' };
+    for (var i = 0; i < chartObject.series.length; i++) {
+        chartObject.series[i].marker = {symbol: 'circle'};
     }
 
-    if(chartObject.number_format.min !== '') {
+    if (chartObject.number_format.min !== '') {
         yaxis['min'] = chartObject.number_format.min;
     }
-    if(chartObject.number_format.max !== '') {
+    if (chartObject.number_format.max !== '') {
         yaxis['max'] = chartObject.number_format.max;
     }
 
@@ -608,18 +612,18 @@ function smallLinechart(container_id, chartObject, max, min) {
                 text: chartObject.xAxis.title.text
             },
             labels: {
-                formatter: function() {
+                formatter: function () {
                     this.axis.labelRotation = 0;
-                    if(this.isFirst) {
+                    if (this.isFirst) {
                         this.axis.labelAlign = 'left';
                         return this.value;
                     }
-                    else if(this.isLast) {
+                    else if (this.isLast) {
                         this.axis.labelAlign = 'right';
                         return this.value;
                     }
                 },
-                style: { fontSize: '12px'},
+                style: {fontSize: '12px'},
                 useHTML: true
             },
             tickPositions: [0, chartObject.series[0].data.length - 1]
@@ -633,14 +637,12 @@ function smallLinechart(container_id, chartObject, max, min) {
         navigation: {
             buttonOptions: {
                 enabled: false
-          }
+            }
         }
     });
 
     return chart;
 }
-
-
 
 
 // ---------------------------------------------------------------------------
@@ -694,30 +696,36 @@ function classNameForMissingDataSymbol(symbol) {
 // ---------------------------------------------------------------------------
 
 function adjustParents(chartObject) {
-    if(chartObject.parent_child) {
-        _.forEach(chartObject.series, function(series) {
+    if (chartObject.parent_child) {
+        _.forEach(chartObject.series, function (series) {
 
             // for all existing data points make sure we mark them include
-            _.forEach(series.data, function(item) {
+            _.forEach(series.data, function (item) {
                 item['include'] = true;
             });
 
             // get a big list of parents
-            var presentParents = _.filter(series.data, function(item) { item.relationships.is_parent; });
+            var presentParents = _.filter(series.data, function (item) {
+                item.relationships.is_parent;
+            });
             var missingParents = getMissingCategories(chartObject.parents, series);
 
             var parentDict = {};
-            _.forEach(presentParents, function(item) { parentDict[item.category] = item; });
-            _.forEach(missingParents, function(item) { parentDict[item.category] = item; });
+            _.forEach(presentParents, function (item) {
+                parentDict[item.category] = item;
+            });
+            _.forEach(missingParents, function (item) {
+                parentDict[item.category] = item;
+            });
 
-            var currentParent = {category:'null'};
+            var currentParent = {category: 'null'};
             var fullSeriesData = [];
-            _.forEach(series.data, function(item) {
-                if(item.relationships.is_parent) {
+            _.forEach(series.data, function (item) {
+                if (item.relationships.is_parent) {
                     fullSeriesData.push(item);
 
                     currentParent = item;
-                } else if(currentParent.category === item.relationships.parent) {
+                } else if (currentParent.category === item.relationships.parent) {
                     fullSeriesData.push(item);
                 } else {
                     fullSeriesData.push(parentDict[item.relationships.parent]);
@@ -729,32 +737,34 @@ function adjustParents(chartObject) {
             series.data = fullSeriesData;
 
             // WARNING Strictly speaking we need a better version for this
-            chartObject.xAxis.categories = _.map(series.data, function(item) { return item.category ;});
+            chartObject.xAxis.categories = _.map(series.data, function (item) {
+                return item.category;
+            });
         })
     }
 }
 
 function getMissingCategories(categoryList, pointList) {
     var missingCategories = [];
-    var pointCategories = _.uniq(_.map(pointList, function(item) { return item.category;}));
-    _.forEach(categoryList, function(category) {
-        if($.inArray(category, pointCategories) == -1) {
+    var pointCategories = _.uniq(_.map(pointList, function (item) {
+        return item.category;
+    }));
+    _.forEach(categoryList, function (category) {
+        if ($.inArray(category, pointCategories) == -1) {
             // WARNING - Parent colour hardcoded
-            missingCategories.push( {
+            missingCategories.push({
                 y: 0,
                 relationships: {is_parent: true, is_child: false, parent: parent},
                 category: category,
                 color: '#2B8CC4',
-                text:'',
+                text: '',
                 include: false
             });
-        };
+        }
+        ;
     });
     return missingCategories;
 }
-
-
-
 
 
 // ---------------------------------------------------------------------------
@@ -767,16 +777,16 @@ function setColour(chartObject) {
 }
 
 function setHeight(chartObject, padding) {
-  var bar = chartObject.type === 'component' ? 33 : chartObject.series.length > 1 ? 30 : chartObject.type === 'small_bar' ? 40 : 33;
-  var barPadding = 10;
-  var seriesLength = 0;
-  var padding = padding ? padding : 160;
+    var bar = chartObject.type === 'component' ? 33 : chartObject.series.length > 1 ? 30 : chartObject.type === 'small_bar' ? 40 : 33;
+    var barPadding = 10;
+    var seriesLength = 0;
+    var padding = padding ? padding : 160;
 
-  for ( var i = 0; i < ( chartObject.type === 'component' ? chartObject.xAxis.categories.length : chartObject.series.length); i++ ) {
-    seriesLength += (chartObject.type === 'component' ? 1 : chartObject.series[i].data.length);
-  }
+    for (var i = 0; i < (chartObject.type === 'component' ? chartObject.xAxis.categories.length : chartObject.series.length); i++) {
+        seriesLength += (chartObject.type === 'component' ? 1 : chartObject.series[i].data.length);
+    }
 
-  return ( seriesLength * bar ) + padding;
+    return (seriesLength * bar) + padding;
 }
 
 function tooltipWithText(chart, series, text) {
@@ -784,6 +794,7 @@ function tooltipWithText(chart, series, text) {
     formatter = formatter + text + '</b>';
     return formatter;
 }
+
 function tooltipWithNumber(chart, series, prefix, suffix, decimalPlaces, number) {
     var formatter = chart.series.length > 1 ? series.name + ': <b>' : '<b>';
     formatter = formatter + prefix + formatNumberWithDecimalPlaces(number, decimalPlaces) + suffix + '</b>';
@@ -791,7 +802,7 @@ function tooltipWithNumber(chart, series, prefix, suffix, decimalPlaces, number)
 }
 
 function decimalPointFormat(label, dp) {
-    if(dp && dp > 0) {
+    if (dp && dp > 0) {
         return '{' + label + ':.' + dp + 'f}';
     }
     return '{' + label + '}';
@@ -800,7 +811,7 @@ function decimalPointFormat(label, dp) {
 function adjustChartObjectForFormat(chartObject) {
 
     var multiplier = chartObject.number_format.multiplier;
-    if(multiplier !== 1.0) {
+    if (multiplier !== 1.0) {
         chartObject.series.forEach(function (series) {
             series.data.forEach(function (data_object) {
                 var value = (multiplier * data_object);
@@ -811,13 +822,17 @@ function adjustChartObjectForFormat(chartObject) {
 }
 
 function setDecimalPlaces(chartObject) {
-    var values = _.map(_.flatten(_.map(chartObject.series, function (series) { return series.data })), function(item) { return item ? item.y : null; });
+    var values = _.map(_.flatten(_.map(chartObject.series, function (series) {
+        return series.data
+    })), function (item) {
+        return item ? item.y : null;
+    });
     chartObject.decimalPlaces = seriesDecimalPlaces(values);
 }
 
 
 // If we're running under Node - required for testing
-if(typeof exports !== 'undefined') {
+if (typeof exports !== 'undefined') {
     var _ = require('./vendor/underscore-min');
     var dataTools = require('./rd-data-tools');
     var chartObjects = require('../cms/rd-chart-objects');
