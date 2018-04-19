@@ -706,7 +706,7 @@ if(typeof exports !== 'undefined') {
     var formatNumberWithDecimalPlaces = dataTools.formatNumberWithDecimalPlaces;
     var getColumnIndex = builderTools.getColumnIndex;
     var index_of_column_named = dataTools.index_of_column_named;
-    var NONE_VALUE = dataTools.NONE_VALUE;
+    var NONE_VALUE = builderTools.NONE_VALUE;
 
     exports.buildTableObject = buildTableObject;
     exports.simpleTable = simpleTable;

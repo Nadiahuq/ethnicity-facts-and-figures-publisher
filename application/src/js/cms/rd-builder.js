@@ -15,7 +15,7 @@ var DATA_ERROR_DUPLICATION = "duplication";
 var DATA_ERROR_MISSING_DATA = "missing data";
 var DATA_ERROR_SETTINGS_ERROR = "settings";
 
-
+var NONE_VALUE = '[None]';
 
 
 // ---------------------------------------------------------------------------

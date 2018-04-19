@@ -2,8 +2,6 @@
  * Created by Tom.Ridd on 08/05/2017.
  */
 
-var NONE_VALUE = '[None]';
-
 function filterData(data, filter) {
 
     var indexFilter = textFilterToIndexFilter(data, filter);
@@ -249,5 +247,4 @@ if(typeof exports !== 'undefined') {
 
     exports.ETHNICITY_ERROR = ETHNICITY_ERROR;
     exports.VALUE_ERROR = VALUE_ERROR;
-    exports.NONE_VALUE = NONE_VALUE;
 }
