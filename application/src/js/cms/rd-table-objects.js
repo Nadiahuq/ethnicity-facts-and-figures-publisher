@@ -15,7 +15,7 @@ specifically...
 
  */
 
-var NONE_VALUE = '[None]';
+
 
 
 // ---------------------------------------------------------------------------
@@ -736,7 +736,8 @@ if(typeof exports !== 'undefined') {
     var formatNumberWithDecimalPlaces = dataTools.formatNumberWithDecimalPlaces;
     var getColumnIndex = builderTools.getColumnIndex;
     var index_of_column_named = dataTools.index_of_column_named;
-    
+    var NONE_VALUE = dataTools.NONE_VALUE;
+
     exports.buildTableObject = buildTableObject;
     exports.simpleTable = simpleTable;
     exports.groupedTable = groupedTable;
