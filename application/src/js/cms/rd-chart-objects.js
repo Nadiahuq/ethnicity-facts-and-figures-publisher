@@ -75,7 +75,7 @@ function buildChartObject(data, chart_type, value_column,
             return linechartObject(data, category_column, secondary_column, chart_title, x_axis_label, y_axis_label, number_format, category_order_column);
 
         case COMPONENT_CHART:
-            return componentChartObject(data, category_column, secondary_column, chart_title, x_axis_label, y_axis_label, number_format, row_order_column, secondary_order_column) ;
+            return componentChartObject(data, category_column, secondary_column, chart_title, x_axis_label, y_axis_label, number_format, category_order_column, secondary_order_column) ;
         case PANEL_BAR_CHART:
             return panelBarchartObject(data, category_column, secondary_column, chart_title, x_axis_label, y_axis_label, number_format, category_order_column, secondary_order_column);
 

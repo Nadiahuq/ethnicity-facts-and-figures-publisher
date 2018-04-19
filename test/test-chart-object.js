@@ -176,6 +176,43 @@ describe('rd-chart-objects', function () {
 
         });
 
+        describe('component-charts', function () {
+            describe('equality function', function () {
+
+                it('should pass a component chart against expected data', function () {
+                    var original = utils.getRandomArrayDataForChart([10, 5]);
+                    var settings = {
+                        'data': original,
+                        'chart_type': chartObjects.COMPONENT_CHART,
+                        'value_column': 'value',
+                        'category_column': 'Category_1',
+                        'secondary_column': 'Category_2'
+                    };
+                    var chartObject = chartObjects.buildChartObjectWithDict(settings);
+                    var componentChart = charts.componentChartHighchartObject(chartObject);
+
+                    expect(componentHighchartSeriesEqualsExpectedData(componentChart, original, 'Category_1', 'Category_2')).to.equal(true);
+                });
+
+                it('should fail a component chart against alternate data', function () {
+                    var original = utils.getRandomArrayDataForChart([10, 5]);
+                    var settings = {
+                        'data': original,
+                        'chart_type': chartObjects.COMPONENT_CHART,
+                        'value_column': 'value',
+                        'category_column': 'Category_1',
+                        'secondary_column': 'Category_2'
+                    };
+                    var chartObject = chartObjects.buildChartObjectWithDict(settings);
+                    var componentChart = charts.componentChartHighchartObject(chartObject);
+
+                    var alternate = utils.getRandomArrayDataForChart([10, 5]);
+
+                    expect(componentHighchartSeriesEqualsExpectedData(componentChart, alternate, 'Category_1', 'Category_2')).to.equal(false);
+                });
+
+            });
+            });
     });
 
 
@@ -267,16 +304,31 @@ function linechartHighchartSeriesEqualsExpectedData(highchart, original, categor
     return fullMatch;
 }
 
+function componentHighchartSeriesEqualsExpectedData(highchart, original, categoryColumn, seriesColumn) {
+    var fullMatch = true;
+    var valueIndex = original[0].indexOf('Value');
+    var categoryIndex = original[0].indexOf(categoryColumn);
+    var seriesIndex = original[0].indexOf(seriesColumn);
+    var originalCategoryGroupValues = _.map(original, function (row) {
+        return row[categoryIndex] + '|' + row[seriesIndex]
+    });
 
+    _.forEach(highchart.series, function (s) {
+        var series = s.name;
 
-function getNumberFormat(format, prefix, suffix, min, max) {
-    if(format === 'none' || format === null) {
-        return {'multiplier':1.0, 'prefix':'', 'suffix':'', 'min':'', 'max':''}
-    } else if (format === 'percent') {
-        return {'multiplier':1.0, 'prefix':'', 'suffix':'%', 'min':0.0, 'max':100.0}
-    } else if (format === 'percent100') {
-        return {'multiplier':100.0, 'prefix':'', 'suffix':'%', 'min':0.0, 'max':100.0}
-    } else if (format === 'other') {
-        return {'multiplier':1.0, 'prefix':prefix, 'suffix':suffix, 'min':min, 'max':max}
-    }
+        _.forEach(highchart.xAxis.categories, function (category, index) {
+            var actual = s.data[index];
+
+            var expectedRowIndex = originalCategoryGroupValues.indexOf(category + '|' + series);
+            if (expectedRowIndex >= 0) {
+                var expected = original[expectedRowIndex][valueIndex];
+                if (actual !== expected) {
+                    fullMatch = false;
+                }
+            } else {
+                fullMatch = false;
+            }
+        })
+    });
+    return fullMatch;
 }

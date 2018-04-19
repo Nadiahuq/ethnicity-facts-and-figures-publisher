@@ -248,11 +248,14 @@ function lineChartTooltip(chartObject) {
 // ----------------------------------
 
 
-
 function componentChart(container_id, chartObject) {
+    return Highcharts.chart(container_id, componentChartHighchartObject(chartObject));
+}
+
+function componentChartHighchartObject(chartObject) {
     preprocessChartObject(chartObject);
 
-    return Highcharts.chart(container_id, {
+    return {
         chart: {
             type:'bar',
             height: setHeight(chartObject)
@@ -294,7 +297,7 @@ function componentChart(container_id, chartObject) {
                 enabled: false
           }
         }
-    });
+    };
 }
 
 function componentChartTooltip(chartObject) {
@@ -826,4 +829,5 @@ if(typeof exports !== 'undefined') {
 
     exports.barchartHighchartObject = barchartHighchartObject;
     exports.linechartHighchartObject = linechartHighchartObject;
+    exports.componentChartHighchartObject = componentChartHighchartObject;
 }
