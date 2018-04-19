@@ -63,7 +63,7 @@ function appendSimpleTableHeader(table_html, tableObject) {
     _.forEach(tableObject.columns, function(column) {
         header_html = header_html + '<th>' + column + '</th>';
     });
-    header_html = header_html + "</tr></thead>"
+    header_html = header_html + "</tr></thead>";
     return table_html + header_html;
 }
 
@@ -110,7 +110,7 @@ function groupedHtmlTable(container_id, tableObject) {
     table_html = appendGroupedTableBody(table_html, tableObject)
     table_html = table_html + "</table>";
 
-    table_html = insertTableFooter(table_html, tableObject);
+    table_html = appendTableFooter(table_html, tableObject);
 
     $("#" + container_id).html(table_html);
 
@@ -211,7 +211,7 @@ function appendTableSubtitle(table_html, tableObject) {
     }
 }
 
-function insertTableFooter(table_html, tableObject) {
+function appendTableFooter(table_html, tableObject) {
     if(tableObject.footer && tableObject.footer !== '') {
         return table_html + "<div class='table-footer'>" + tableObject.footer + "</div>";
     } else {

@@ -133,13 +133,19 @@ function simpleTable(data, title, subtitle, footer, category_column, parent_colu
 
 // ---------------------------------
 // PREPROCESSING
+// 1. Decimal places to display
+// 2. Whether to format as dates
 // ---------------------------------
 
 function preProcessSimpleTableObject(tableObject) {
-    
+
+    // get decimal places to display for each numeric column
     var columnDps = columnDecimalPlaces(tableObject);
+
+    // get whether each column might actually be a year
     var couldBeYear = columnCouldBeAYear(tableObject);
 
+    // apply to data
     tableObject.data = _.map(tableObject.data, function(item) {
         item.values = _.map(_.zip(item.values, columnDps, couldBeYear), function(cellTuple) {
             if(cellTuple[2] === false) {
@@ -152,6 +158,7 @@ function preProcessSimpleTableObject(tableObject) {
     });
 }
 
+// get decimal places to display for each numeric column
 function columnDecimalPlaces(tableObject) {
     var dps = [];
     // iterate through columns
@@ -166,6 +173,7 @@ function columnDecimalPlaces(tableObject) {
     return dps;
 }
 
+// get whether each column might actually be a year
 function columnCouldBeAYear(tableObject) {
     var years = [];
 
@@ -685,44 +693,6 @@ function numVal(value, defaultVal) {
     var num = Number(string);
     return num ? num : value;
 }
-
-
-
-
-
-// function validateAndAdjust(data, rowIndex, columnIndex, sortIndex, parentIndex, valueIndex) {
-//     var missingData = [];
-//     var doubleData = [];
-
-//     var rowItems = _.uniq(_.map(data, function(item) { return item[rowIndex]; }));
-//     var columnItems = _.uniq(_.map(data, function(item) { return item[columnIndex]; }));
-
-//     var mapOfPairs = _.object(_.map(rowItems, function(item) {
-//        return [item, _.map(_.filter(data, function(row) { return row[rowIndex] === item}), function (row) {
-//             return row[columnIndex]
-//        })];
-//     }));
-
-//     _.forEach(rowItems, function (row) {
-//         _.forEach(columnItems, function (col) {
-//             if(!_.contains(mapOfPairs[row], col)) {
-//                 missingData.push({'category': row, 'group': col})
-//             }
-//         })
-//     });
-
-//     if(missingData.length > 0) {
-//         _.forEach(missingData, function (item) {
-//             var newRow = _.map(_.range(data[0].length), function(i) { return '' });
-//             newRow[rowIndex] = item['category'];
-//             newRow[columnIndex] = item['group'];
-//             data.push(newRow)
-//         });
-//         return data;
-//     }
-//     return null
-// }
-
 
 
 // If we're running under Node - required for testing
