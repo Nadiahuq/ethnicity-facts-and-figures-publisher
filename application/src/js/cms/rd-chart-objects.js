@@ -60,7 +60,7 @@ function buildChartObject(data, chart_type, value_column,
 
     // case statement to build chart based on type
 
-    var null_column_value = null_value ? null_value : '[None]';
+    var null_column_value = null_value ? null_value : NONE_VALUE;
     switch(chart_type.toLowerCase()) {
         case BAR_CHART:
             var dataRows = _.clone(data);
@@ -116,7 +116,7 @@ function barchartObject(data, primary_column, secondary_column, parent_column, o
 }
 
 function isSimpleBarchart(column_name) {
-    return column_name === '[None]' || column_name === null;
+    return column_name === NONE_VALUE || column_name === null;
 }
 
 function barchartSingleObject(headerRow, dataRows, category_column, parent_column, order_column, chart_title, x_axis_label, y_axis_label, number_format) {
@@ -183,7 +183,7 @@ function barchartDoubleObject(headerRow, dataRows, category1, category2, parent_
 function linechartObject(data, categories_column, series_column, chart_title, x_axis_label, y_axis_label, number_format, series_order_column) {
     var dataRows = _.clone(data);
     var headerRow = dataRows.shift();
-    var series_order_column_name = series_order_column === '[None]' ? null : series_order_column;
+    var series_order_column_name = series_order_column === NONE_VALUE ? null : series_order_column;
 
     var indices = getIndices(headerRow, categories_column, series_column, null, null, series_order_column_name);
     var categories = uniqueDataInColumnMaintainOrder(dataRows, indices['category']);
@@ -238,14 +238,14 @@ function componentChartObject(data, grouping_column, series_column, chart_title,
     var indices = getIndices(headerRow, grouping_column, series_column, null, row_order_column, series_order_column);
 
     var groups = null;
-    if(isUndefinedOrNull(row_order_column) || row_order_column === '[None]') {
+    if(isUndefinedOrNull(row_order_column) || row_order_column === NONE_VALUE) {
         groups = uniqueDataInColumnMaintainOrder(dataRows, indices['category']);
     } else {
         groups = uniqueDataInColumnOrdered(dataRows, indices['category'], indices['order']);
     }
 
     var seriesNames = null;
-    if(isUndefinedOrNull(series_order_column) || series_order_column === '[None]') {
+    if(isUndefinedOrNull(series_order_column) || series_order_column === NONE_VALUE) {
         seriesNames = uniqueDataInColumnMaintainOrder(dataRows, indices['secondary']).reverse();
     } else {
         seriesNames = uniqueDataInColumnOrdered(dataRows, indices['secondary'], indices['custom']).reverse();
@@ -284,7 +284,7 @@ function panelBarchartObject(data, category_column, panel_column, chart_title, x
     var categories = uniqueCategories(dataRows, indices['category'], indices['order']);
 
     var panelValues = null;
-    if(isUndefinedOrNull(panel_order_column) || panel_order_column === '[None]') {
+    if(isUndefinedOrNull(panel_order_column) || panel_order_column === NONE_VALUE) {
         panelValues = uniqueDataInColumnMaintainOrder(dataRows, indices['secondary']);
     } else {
         panelValues = uniqueDataInColumnOrdered(dataRows, indices['secondary'], indices['custom'])
@@ -331,7 +331,7 @@ function panelLinechartObject(data, x_axis_column, panel_column, chart_title, x_
     var indices = getIndices(headerRow, panel_column, x_axis_column, null, null, panel_order_column);
 
     var panelNames = null;
-    if(isUndefinedOrNull(panel_order_column) || panel_order_column === '[None]') {
+    if(isUndefinedOrNull(panel_order_column) || panel_order_column === NONE_VALUE) {
         panelNames = uniqueDataInColumnMaintainOrder(dataRows, indices['category']);
     } else {
         panelNames = uniqueDataInColumnOrdered(dataRows, indices['category'], indices['custom'])
@@ -485,8 +485,6 @@ function toNumberSortValue(value) {
 }
 
 
-
-
 // If we're running under Node - required for testing
 if(typeof exports !== 'undefined') {
     var _ = require('../charts/vendor/underscore-min');
@@ -496,6 +494,7 @@ if(typeof exports !== 'undefined') {
     var index_of_column_named = dataTools.index_of_column_named;
     var uniqueDataInColumnMaintainOrder = dataTools.uniqueDataInColumnMaintainOrder;
     var getColumnIndex = builderTools.getColumnIndex;
+    var NONE_VALUE = builderTools.NONE_VALUE;
 
     exports.barchartObject = barchartObject;
     exports.linechartObject = linechartObject;
