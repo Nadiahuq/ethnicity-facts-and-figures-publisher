@@ -17,6 +17,21 @@
  - years displayed in yyyy form without decimal places
  */
 
+/*
+
+GENERAL PATTERN
+
+1. convert to a chart object that conforms to the Highcharts API
+    highchartObject = xxxHighchartObject(chartObject)
+
+2. render the highchartObject to the page
+    renderXXX(container_id, highchartObject)
+
+ taking two steps to render chartObject allows us to test the highchartObject
+
+ other final adjustments are made to the chartObject in the preprocessChartObject(chartObject) step
+ */
+
 
 
 // ------------------ PUBLIC ------------------------------------------------
@@ -505,7 +520,6 @@ function smallBarchartHighchartsObject(chartObject, max) {
 }
 
 function smallBarchart(container_id, chartObject) {
-    console.log(chartObject)
     var chart = Highcharts.chart(container_id,  chartObject);
     chart.redraw();
 
@@ -526,48 +540,47 @@ function small_barchart_show_last_label(chartObject) {
 // PANEL LINE CHART
 // ----------------------------------
 
-
 function panelLinechart(container_id, chartObject) {
+    var panelChart = panelLinechartHighchartsObject(chartObject);
 
-    var internal_divs = chartObject.title === '' ? '' : "<div class='small-chart-title'>" + chartObject.title + "</div>";
-    var max = 0, min = 0;
-
-    for (var i = 0; i < chartObject.panels.length; i++) {
-        for (var j = 0; j < chartObject.panels[i].series.length; j++) {
-            for (var k = 0; k < chartObject.panels[i].series[j].data.length; k++) {
-                max = max < chartObject.panels[i].series[j].data[k] ? chartObject.panels[i].series[j].data[k] : max;
-            }
-        }
-    }
-
-    min = max;
-    for (var i = 0; i < chartObject.panels.length; i++) {
-        for (var j = 0; j < chartObject.panels[i].series.length; j++) {
-            for (var k = 0; k < chartObject.panels[i].series[j].data.length; k++) {
-                min = chartObject.panels[i].series[j].data[k] < min ? chartObject.panels[i].series[j].data[k] : min;
-            }
-        }
-    }
-
-    for (var c in chartObject.panels) {
-        internal_divs = internal_divs + "<div id=\"" + container_id + "_" + c + "\" class=\"chart-container column-one-" + (chartObject.panels.length > 2 ? 'third' : 'half') + "\"></div>";
+    // scaffolding
+    var internal_divs = panelChart.title === '' ? '' : "<div class='small-chart-title'>" + panelChart.title + "</div>";
+    for (c in panelChart.panels) {
+        internal_divs = internal_divs + "<div id=\"" + container_id + "_" + c + "\" class=\"chart-container column-one-" + (panelChart.panels.length > 2 ? 'third' : 'half') + "\"></div>";
     }
     $('#' + container_id).addClass('panel-line-chart').html(internal_divs);
 
+    // render the charts
     var charts = [];
-    for (c in chartObject.panels) {
-        var panel_container_id = container_id + "_" + c;
-        var panelChart = chartObject.panels[c];
-        charts.push(smallLinechart(panel_container_id, panelChart, max, min));
-    }
-    ;
+    for (var c in panelChart.panels) {
+        charts.push(smallLinechart(container_id + "_" + c, panelChart.panels[c]));
+    };
     return charts;
 }
 
-function smallLinechart(container_id, chartObject, max, min) {
+function panelLinechartHighchartsObject(chartObject) {
+
+    var allData = allDataValues(chartObject.panels);
+    var min = _.min(allData);
+    var max = _.max(allData);
+    return {
+        'title': chartObject.title,
+        'panels': _.map(chartObject.panels, function (panel) {
+            return smallLinechartHighchartsObject(panel, min, max)
+        })
+    }
+}
+
+function allDataValues(panels) {
+    return _.flatten(_.map(panels, function (panel) {
+        return _.flatten(_.pluck(panel.series, 'data'))
+    }))
+}
+
+function smallLinechartHighchartsObject(chartObject, min, max) {
     preprocessChartObject(chartObject);
 
-    var yaxis = {
+    var yAxis = {
         title: {
             text: chartObject.yAxis.title.text
         },
@@ -587,13 +600,13 @@ function smallLinechart(container_id, chartObject, max, min) {
     }
 
     if (chartObject.number_format.min !== '') {
-        yaxis['min'] = chartObject.number_format.min;
+        yAxis['min'] = chartObject.number_format.min;
     }
     if (chartObject.number_format.max !== '') {
-        yaxis['max'] = chartObject.number_format.max;
+        yAxis['max'] = chartObject.number_format.max;
     }
 
-    var chart = Highcharts.chart(container_id, {
+    return {
         chart: {
             marginTop: 20,
             height: 250
@@ -628,7 +641,7 @@ function smallLinechart(container_id, chartObject, max, min) {
             },
             tickPositions: [0, chartObject.series[0].data.length - 1]
         },
-        yAxis: yaxis,
+        yAxis: yAxis,
         tooltip: lineChartTooltip(chartObject),
         credits: {
             enabled: false
@@ -639,9 +652,11 @@ function smallLinechart(container_id, chartObject, max, min) {
                 enabled: false
             }
         }
-    });
+    };
+}
 
-    return chart;
+function smallLinechart(container_id, chartObject) {
+    return Highcharts.chart(container_id, chartObject);
 }
 
 
@@ -845,4 +860,6 @@ if (typeof exports !== 'undefined') {
     exports.barchartHighchartObject = barchartHighchartObject;
     exports.linechartHighchartObject = linechartHighchartObject;
     exports.componentChartHighchartObject = componentChartHighchartObject;
+    exports.panelBarchartHighchartsObject = panelBarchartHighchartsObject;
+    exports.panelLinechartHighchartsObject = panelLinechartHighchartsObject;
 }
