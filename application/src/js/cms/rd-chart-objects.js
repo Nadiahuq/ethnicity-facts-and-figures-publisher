@@ -288,8 +288,10 @@ function componentChartObject(data, grouping_column, series_column, chart_title,
     }
 
     var seriesNames = null;
+    var seriesNames2 = null;
     if(isUndefinedOrNull(series_order_column) || series_order_column === NONE_VALUE) {
         seriesNames = uniqueDataInColumnMaintainOrder(dataRows, indices['secondary']).reverse();
+        seriesNames2 = uniqueDataInColumnMaintainOrder(dataRows, indices['secondary']);
     } else {
         seriesNames = uniqueDataInColumnOrdered(dataRows, indices['secondary'], indices['custom']).reverse();
     }
@@ -536,6 +538,7 @@ if(typeof exports !== 'undefined') {
 
     var index_of_column_named = dataTools.index_of_column_named;
     var uniqueDataInColumnMaintainOrder = dataTools.uniqueDataInColumnMaintainOrder;
+    var uniqueDataInColumn = dataTools.uniqueDataInColumn;
     var getColumnIndex = builderTools.getColumnIndex;
     var NONE_VALUE = builderTools.NONE_VALUE;
 
