@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{%  set form_disabled = measure.status != 'DRAFT' %}
+{% set form_disabled = measure.status != 'DRAFT' %}
 
 {% block end_breadcrumbs %}
     <li>
@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block messages %}
- <div class='grid-row'>
+    <div class='grid-row'>
         <div class='column-full'>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -40,127 +40,157 @@
                 Add Table
             </h1>
         </div>
-        <div class="column-one-third">
-            <div id="tab_seperated_content" class="chart-builder-section">
-                <h2 class="heading-medium">1. Copy data from excel</h2>
-                <div>
-                    <form>
-                        <div class="form-group">
-                            <textarea class="form-control" id="data_text_area" rows="3" {% if form_disabled %}disabled="disabled"{% endif %}></textarea>
-                        </div>
-                    </form>
-                </div>
-            </div>
 
-            <div id="table_options" class="chart-builder-section chart-option-group" style="display:none">
-                <h2 class="heading-medium">2. Table builder options</h2>
+        <!-- Data panel is visible -->
+        <div id="data-panel" class="data-panel">
+            <div class="column-full">
+                <h2 class="heading-medium">1. Data</h2>
                 <form>
                     <div class="form-group">
-                        <label for="table_title">Headers</label>
-                        <input id="table_title" placeholder="Title" {% if form_disabled %}disabled="disabled"{% endif %}>
-                        <input id="table_subtitle" placeholder="Subtitle" style="display:none" {% if form_disabled %}disabled="disabled"{% endif %}>
+                    <textarea class="form-control" id="data_text_area" rows="10"
+                              {% if form_disabled %}disabled="disabled"{% endif %}></textarea>
                     </div>
-
-                    <div class="form-group">
-                        <label for="table_category_column">Rows</label>
-                        <select id="table_category_column" class="form-control" {% if form_disabled %}disabled="disabled"{% endif %}>
-                            <option>Ethnicity</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <input class="margin-top-small" id="table_category_caption" placeholder="First column caption" {% if form_disabled %}disabled="disabled"{% endif %}>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="table_group_column">Grouping</label>
-                        <select id="table_group_column" class="form-control" {% if form_disabled %}disabled="disabled"{% endif %}>
-                            <option>[None]</option>
-                        </select>
-                    </div>
-                </form>
-
-                <h2 class="heading-medium">3. Advanced options</h2>
-                <form>
-                    <div class="form-group">
-                        <label for="table_parent_column">Parent</label>
-                        <select id="table_parent_column" class="form-control" {% if form_disabled %}disabled="disabled"{% endif %}>
-                            <option>[None]</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="table_order_column">Order rows by</label>
-                        <select id="table_order_column" class="form-control" {% if form_disabled %}disabled="disabled"{% endif %}>
-                            <option>[None]</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="table_group_order">Order columns by</label>
-                        <select id="table_group_order" class="form-control" {% if form_disabled %}disabled="disabled"{% endif %}>
-                            <option>[None]</option>
-                        </select>
-                    </div>
-                </form>
-
-                <h2 class="heading-medium">4. Data</h2>
-                <form>
-                    <div class="form-group">
-                        <label for="table_column_1">Column 1</label>
-                        <select id="table_column_1" class="form-control column_option_picker" {% if form_disabled %}disabled="disabled"{% endif %}>
-                            <option>[None]</option>
-                        </select>
-                        <input id="table_column_1_name" class="margin-top-small">
-
-                        <label for="table_column_2">Column 2</label>
-                        <select id="table_column_2" class="form-control column_option_picker" {% if form_disabled %}disabled="disabled"{% endif %}>
-                            <option>[None]</option>
-                        </select>
-                        <input id="table_column_2_name" class="margin-top-small">
-
-                        <label for="table_column_3">Column 3</label>
-                        <select id="table_column_3" class="form-control column_option_picker" {% if form_disabled %}disabled="disabled"{% endif %}>
-                            <option>[None]</option>
-                        </select>
-                        <input id="table_column_3_name" class="margin-top-small">
-
-                        <label for="table_column_4">Column 4</label>
-                        <select id="table_column_4" class="form-control column_option_picker" {% if form_disabled %}disabled="disabled"{% endif %}>
-                            <option>[None]</option>
-                        </select>
-                        <input id="table_column_4_name" class="margin-top-small">
-
-                        <label for="table_column_5">Column 5</label>
-                        <select id="table_column_5" class="form-control column_option_picker" {% if form_disabled %}disabled="disabled"{% endif %}>
-                            <option>[None]</option>
-                        </select>
-                        <input id="table_column_5_name" class="margin-top-small">
-
-                        <div class="form-group">
-                            <label for="table_footer">Footer</label>
-                            <input id="table_footer" placeholder="Footer" {% if form_disabled %}disabled="disabled"{% endif %}>
-                        </div>
-                    </div>
+                    <div class="btn button btn-primary" id="confirm-data">Okay</div>
+                        <div class="btn button btn-primary" id="cancel-edit-data">Cancel</div>
                 </form>
             </div>
         </div>
 
-        <div class="column-two-thirds">
-            <div id="preview_section" class="chart-builder-section" style="display:none">
-                <h2 class="heading-medium">3. Generate table</h2>
-                <button class="btn button btn-primary" id="preview">Preview</button>
+        <!-- Edit panel is visible -->
+        <div id="edit-panel" class="edit-panel" style="display:none">
+            <div class="column-one-third">
+                <div id="tab_seperated_content" class="chart-builder-section">
+                    <h2 class="heading-medium">1. Data</h2>
+                    <div>
+                        <p id="data-description">R rows by C columns</p>
+                        <div class="btn button btn-primary" id="edit-data">Edit</div>
+                    </div>
+                </div>
+
+                <div id="table_options" class="chart-builder-section chart-option-group" style="display:none">
+                    <h2 class="heading-medium">2. Table builder options</h2>
+                    <form>
+                        <div class="form-group">
+                            <label for="table_title">Headers</label>
+                            <input id="table_title" placeholder="Title"
+                                   {% if form_disabled %}disabled="disabled"{% endif %}>
+                            <input id="table_subtitle" placeholder="Subtitle" style="display:none"
+                                   {% if form_disabled %}disabled="disabled"{% endif %}>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="table_category_column">Rows</label>
+                            <select id="table_category_column" class="form-control"
+                                    {% if form_disabled %}disabled="disabled"{% endif %}>
+                                <option>Ethnicity</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input class="margin-top-small" id="table_category_caption"
+                                   placeholder="First column caption"
+                                   {% if form_disabled %}disabled="disabled"{% endif %}>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="table_group_column">Grouping</label>
+                            <select id="table_group_column" class="form-control"
+                                    {% if form_disabled %}disabled="disabled"{% endif %}>
+                                <option>[None]</option>
+                            </select>
+                        </div>
+                    </form>
+
+                    <h2 class="heading-medium">3. Advanced options</h2>
+                    <form>
+                        <div class="form-group">
+                            <label for="table_parent_column">Parent</label>
+                            <select id="table_parent_column" class="form-control"
+                                    {% if form_disabled %}disabled="disabled"{% endif %}>
+                                <option>[None]</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="table_order_column">Order rows by</label>
+                            <select id="table_order_column" class="form-control"
+                                    {% if form_disabled %}disabled="disabled"{% endif %}>
+                                <option>[None]</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="table_group_order">Order columns by</label>
+                            <select id="table_group_order" class="form-control"
+                                    {% if form_disabled %}disabled="disabled"{% endif %}>
+                                <option>[None]</option>
+                            </select>
+                        </div>
+                    </form>
+
+                    <h2 class="heading-medium">4. Data</h2>
+                    <form>
+                        <div class="form-group">
+                            <label for="table_column_1">Column 1</label>
+                            <select id="table_column_1" class="form-control column_option_picker"
+                                    {% if form_disabled %}disabled="disabled"{% endif %}>
+                                <option>[None]</option>
+                            </select>
+                            <input id="table_column_1_name" class="margin-top-small">
+
+                            <label for="table_column_2">Column 2</label>
+                            <select id="table_column_2" class="form-control column_option_picker"
+                                    {% if form_disabled %}disabled="disabled"{% endif %}>
+                                <option>[None]</option>
+                            </select>
+                            <input id="table_column_2_name" class="margin-top-small">
+
+                            <label for="table_column_3">Column 3</label>
+                            <select id="table_column_3" class="form-control column_option_picker"
+                                    {% if form_disabled %}disabled="disabled"{% endif %}>
+                                <option>[None]</option>
+                            </select>
+                            <input id="table_column_3_name" class="margin-top-small">
+
+                            <label for="table_column_4">Column 4</label>
+                            <select id="table_column_4" class="form-control column_option_picker"
+                                    {% if form_disabled %}disabled="disabled"{% endif %}>
+                                <option>[None]</option>
+                            </select>
+                            <input id="table_column_4_name" class="margin-top-small">
+
+                            <label for="table_column_5">Column 5</label>
+                            <select id="table_column_5" class="form-control column_option_picker"
+                                    {% if form_disabled %}disabled="disabled"{% endif %}>
+                                <option>[None]</option>
+                            </select>
+                            <input id="table_column_5_name" class="margin-top-small">
+
+                            <div class="form-group">
+                                <label for="table_footer">Footer</label>
+                                <input id="table_footer" placeholder="Footer"
+                                       {% if form_disabled %}disabled="disabled"{% endif %}>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div id="error_container"></div>
+            <div class="column-two-thirds">
+                <div id="preview_section" class="chart-builder-section" style="display:none">
+                    <h2 class="heading-medium">3. Generate table</h2>
+                    <button class="btn button btn-primary" id="preview">Preview</button>
+                </div>
+                <div id="error_container"></div>
 
-            <div id="container"></div>
+                <div id="container"></div>
 
-            <div id="save_section" class="chart-builder-section">
-                {% if 'UPDATE' in measure.available_actions() %}
-                    <h2 class="heading-medium">4. Save</h2>
-                {%  endif %}
-                <div style="margin-top: 10px">
+                <div id="save_section" class="chart-builder-section">
                     {% if 'UPDATE' in measure.available_actions() %}
-                        <button class="button" id="save">Save</button>
+                        <h2 class="heading-medium">4. Save</h2>
                     {% endif %}
-                    <button class="button" id="exit">Back</button>
+                    <div style="margin-top: 10px">
+                        {% if 'UPDATE' in measure.available_actions() %}
+                            <button class="button" id="save">Save</button>
+                        {% endif %}
+                        <button class="button" id="exit">Back</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -169,10 +199,13 @@
 
 {% block scripts %}
 
-<script type="text/javascript">
-    $(document).ready(function() {
+    <script type="text/javascript">
+        var currentData = "";
 
-        $('#data_text_area').keyup(paste);
+
+        $('#confirm-data').click(setTableData);
+        $('#edit-data').click(editTableData);
+        $('#cancel-edit-data').click(cancelEditData);
         $('#preview').click(preview);
         $('#save').click(saveTable);
         $('#exit').click(back);
@@ -182,56 +215,39 @@
             window.location.replace("{{ url_for('cms.edit_dimension', topic=topic.guid, subtopic=subtopic.guid, measure=measure.guid, version=measure.version, dimension=dimension.guid) }}")
         }
 
-        function uniqueDataInColumn(data, index) {
-            var values = _.map(data.slice(start = 1), function(item) {
-                return item[index]; });
-            return _.uniq(values).sort();
-        }
-        function paste(evt) {
+        function setTableData(evt) {
             var settings = getTablePageSettings();
-            handleNewData(function() { refreshSettings(settings) });
+            handleNewData(function () {
+                refreshSettings(settings)
+            });
+            $('#data-panel').hide();
+            $('#edit-panel').show();
         }
 
-        function setDropdownWithDefault(dropdown_id, value, default_value) {
-            if(value) {
-                $('#' + dropdown_id).val(value);
-            } else {
-                $('#' + dropdown_id).val(default_value);
-            }
+        function editTableData(evt) {
+            currentData = $('#data-text-area').val();
+            $('#data-panel').show();
+            $('#edit-panel').hide();
         }
 
-        function refreshSettings(settings) {
-                $('#table_title').val(settings.tableOptions.table_title);
-                $('#table_subtitle').val(settings.tableOptions.table_subtitle);
-                $('#table_footer').val(settings.tableOptions.table_footer);
-
-                setDropdownWithDefault('table_category_column', settings.tableOptions.table_category_column, 'Ethnicity');
-                setDropdownWithDefault('table_category_caption', settings.tableOptions.table_category_caption, '[None]');
-                setDropdownWithDefault('table_group_column', settings.tableOptions.table_group_column, '[None]');
-                setDropdownWithDefault('table_order_column', settings.tableOptions.table_order_column, '[None]');
-                setDropdownWithDefault('table_parent_column', settings.tableOptions.table_parent_column, '[None]');
-                setDropdownWithDefault('table_group_order', settings.tableOptions.table_column_order_column, '[None]');
-
-                setDropdownWithDefault('table_column_1', settings.tableOptions.table_column_1, '[None]');
-                setDropdownWithDefault('table_column_2', settings.tableOptions.table_column_2, '[None]');
-                setDropdownWithDefault('table_column_3', settings.tableOptions.table_column_3, '[None]');
-                setDropdownWithDefault('table_column_4', settings.tableOptions.table_column_4, '[None]');
-                setDropdownWithDefault('table_column_5', settings.tableOptions.table_column_5, '[None]');
-
-                $('#table_column_1_name').val(settings.tableOptions.table_column_1_name);
-                $('#table_column_2_name').val(settings.tableOptions.table_column_2_name);
-                $('#table_column_3_name').val(settings.tableOptions.table_column_3_name);
-                $('#table_column_4_name').val(settings.tableOptions.table_column_4_name);
-                $('#table_column_5_name').val(settings.tableOptions.table_column_5_name);
-                showHideTableColumnNames();
-                preview(null);
-         }
+        function cancelEditData(evt) {
+            $('#data-text-area').val(currentData);
+            $('#data-panel').hide();
+            $('#edit-panel').show();
+        }
 
         function handleNewData(on_complete) {
             // get the data
             var tabbedData = $("#data_text_area").val();
             // read data
             source_data = textToData(tabbedData);
+
+            var message = "Add some data"
+            if(source_data.length > 0) {
+                message = source_data.length + ' rows by ' + source_data[0].length + ' columns.'
+            }
+            $('#data-description').html(message);
+
 
             $.ajax({
                 type: "post",
@@ -248,24 +264,59 @@
                     $('#table_options').show();
                     $('#preview_section').show();
 
-                    if(on_complete) {
+                    if (on_complete) {
                         on_complete();
                     }
                 },
-                failure: function() {
+                failure: function () {
                     headers = data[0];
                     populateTableOptions(headers);
                     $('#table_options').show();
                     $('#preview_section').show();
 
-                    if(on_complete) {
+                    if (on_complete) {
                         on_complete();
                     }
                 },
-                error: function(err) {
+                error: function (err) {
                     console.log(err);
                 }
             });
+        }
+
+        function setDropdownWithDefault(dropdown_id, value, default_value) {
+            if (value) {
+                $('#' + dropdown_id).val(value);
+            } else {
+                $('#' + dropdown_id).val(default_value);
+            }
+        }
+
+        function refreshSettings(settings) {
+            $('#table_title').val(settings.tableOptions.table_title);
+            $('#table_subtitle').val(settings.tableOptions.table_subtitle);
+            $('#table_footer').val(settings.tableOptions.table_footer);
+
+            setDropdownWithDefault('table_category_column', settings.tableOptions.table_category_column, 'Ethnicity');
+            setDropdownWithDefault('table_category_caption', settings.tableOptions.table_category_caption, '[None]');
+            setDropdownWithDefault('table_group_column', settings.tableOptions.table_group_column, '[None]');
+            setDropdownWithDefault('table_order_column', settings.tableOptions.table_order_column, '[None]');
+            setDropdownWithDefault('table_parent_column', settings.tableOptions.table_parent_column, '[None]');
+            setDropdownWithDefault('table_group_order', settings.tableOptions.table_column_order_column, '[None]');
+
+            setDropdownWithDefault('table_column_1', settings.tableOptions.table_column_1, '[None]');
+            setDropdownWithDefault('table_column_2', settings.tableOptions.table_column_2, '[None]');
+            setDropdownWithDefault('table_column_3', settings.tableOptions.table_column_3, '[None]');
+            setDropdownWithDefault('table_column_4', settings.tableOptions.table_column_4, '[None]');
+            setDropdownWithDefault('table_column_5', settings.tableOptions.table_column_5, '[None]');
+
+            $('#table_column_1_name').val(settings.tableOptions.table_column_1_name);
+            $('#table_column_2_name').val(settings.tableOptions.table_column_2_name);
+            $('#table_column_3_name').val(settings.tableOptions.table_column_3_name);
+            $('#table_column_4_name').val(settings.tableOptions.table_column_4_name);
+            $('#table_column_5_name').val(settings.tableOptions.table_column_5_name);
+            showHideTableColumnNames();
+            preview(null);
         }
 
         function strippedHeaders(headers) {
@@ -390,8 +441,8 @@
         function preview(evt) {
             var category = $('#table_category_column').val();
             var group = $('#table_group_column').val();
-            var errors = validateData(data, category, group==='[None]' ? null: group);
-            if(errors.length > 0) {
+            var errors = validateData(data, category, group === '[None]' ? null : group);
+            if (errors.length > 0) {
                 showErrors(errors);
                 return
             } else {
@@ -415,7 +466,7 @@
         }
 
         function saveTable(evt) {
-            $('#save').attr('disabled','disabled');
+            $('#save').attr('disabled', 'disabled');
             var tableObject = buildTableObject(data,
                 $('#table_title').val(),
                 $('#table_subtitle').val(),
@@ -428,7 +479,9 @@
                 getColumnCaptions(),
                 $('#table_category_caption').val(),
                 $('#table_group_order').val());
-            if(tableObject) { postTableObject(tableObject, getTablePageSettings()); }
+            if (tableObject) {
+                postTableObject(tableObject, getTablePageSettings());
+            }
         }
 
         function getTablePageSettings() {
@@ -456,7 +509,7 @@
                     'table_column_3_name': $('#table_column_3_name').val(),
                     'table_column_4_name': $('#table_column_4_name').val(),
                     'table_column_5_name': $('#table_column_5_name').val(),
-                    'table_column_order_column' : $('#table_group_order').val()
+                    'table_column_order_column': $('#table_group_order').val()
                 }
             };
         };
@@ -482,7 +535,7 @@
                 "There are problems with your data" +
                 "</h2><ul>";
 
-            _.forEach(errors, function(error) {
+            _.forEach(errors, function (error) {
                 errorString = errorString + "<li>" + errorDescription(error) + "</li>"
             });
 
@@ -490,7 +543,9 @@
 
             // add hints to resolve these errors
             errorString = errorString + "<ul>";
-            var hints = _.uniq(_.map(errors, function(error) { return errorResolutionHint(error)}));
+            var hints = _.uniq(_.map(errors, function (error) {
+                return errorResolutionHint(error)
+            }));
             _.forEach(hints, function (hint) {
                 errorString = errorString + "<li class=\"error-message\">" + hint + "</li></ul>";
             });
@@ -501,7 +556,6 @@
 
             clearTableArea();
         }
-
 
 
         function clearErrors() {
@@ -522,20 +576,28 @@
                 var data_text = _.map(settings.data, function (d) {
                     return d.join('\t')
                 }).join('\n');
+
+                setTableData(null);
                 $('#data_text_area').val(data_text);
-                handleNewData(function () { refreshSettings(settings)});
+                handleNewData(function () {
+                    refreshSettings(settings)
+                });
             }
         }
 
-        initialiseForm();
-    });
+
+        $(document).ready(function () {
+            initialiseForm();
+        });
     </script>
 
     <script>
         function pasteJson(json) {
             var data_text_area = document.getElementById('data_text_area');
 
-            data_text_area.value = _.map(json, function(row) { return row.join('\t'); }).join('\n');
+            data_text_area.value = _.map(json, function (row) {
+                return row.join('\t');
+            }).join('\n');
             data_text_area.dispatchEvent(new Event("keyup"));
         }
     </script>
