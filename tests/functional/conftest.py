@@ -34,10 +34,10 @@ def _driver():
         GOOGLE_CHROME_SHIM = os.environ['GOOGLE_CHROME_SHIM']
         CHROMEDRIVER_PATH = os.environ['CHROMEDRIVER_PATH']
         options = webdriver.ChromeOptions()
+        options.binary_location = GOOGLE_CHROME_SHIM
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
-        options.binary_location = GOOGLE_CHROME_SHIM
         driver = webdriver.Chrome(chrome_options=options,
                                   executable_path=CHROMEDRIVER_PATH)
 
