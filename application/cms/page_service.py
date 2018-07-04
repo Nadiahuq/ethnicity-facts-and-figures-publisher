@@ -89,10 +89,11 @@ class PageService(Service):
             raise StaleUpdateException('')
         else:
             # Possibly temporary to work out issue with data deletions
-            message = 'EDIT MEASURE: Current state of page: %s' % page.to_dict()
-            self.logger.info(message)
-            message = 'EDIT MEASURE: Data posted to update page: %s' % data
-            self.logger.info(message)
+            if self.app.config.LOG_PAGE_CHANGES:
+                message = 'EDIT MEASURE: Current state of page: %s' % page.to_dict()
+                self.logger.info(message)
+                message = 'EDIT MEASURE: Data posted to update page: %s' % data
+                self.logger.info(message)
 
             subtopic = data.pop('subtopic', None)
             if subtopic is not None and page.parent.guid != subtopic:
@@ -130,8 +131,10 @@ class PageService(Service):
             db.session.commit()
 
             # Possibly temporary to work out issue with data deletions
-            message = 'EDIT MEASURE: Page updated to: %s' % page.to_dict()
-            self.logger.info(message)
+            if self.app.config.LOG_PAGE_CHANGES:
+                message = 'EDIT MEASURE: Page updated to: %s' % page.to_dict()
+                self.logger.info(message)
+
             return page
 
     def get_page(self, guid):
@@ -164,8 +167,9 @@ class PageService(Service):
             page = Page.query.filter_by(guid=guid, version=version).one()
 
             # Temporary logging to work out issue with data deletions
-            message = 'Get page with version %s' % page.to_dict()
-            self.logger.info(message)
+            if self.app.config.LOG_PAGE_CHANGES:
+                message = 'Get page with version %s' % page.to_dict()
+                self.logger.info(message)
 
             return page
         except NoResultFound as e:

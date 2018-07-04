@@ -86,6 +86,8 @@ class Config:
     TRELLO_API_KEY = os.environ.get('TRELLO_API_KEY', '')
     TRELLO_API_TOKEN = os.environ.get('TRELLO_API_TOKEN', '')
 
+    LOG_PAGE_CHANGES = os.environ.get('LOG_PAGE_CHANGES', True)
+
 
 class DevConfig(Config):
     DEBUG = True
