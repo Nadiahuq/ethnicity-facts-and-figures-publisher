@@ -18,7 +18,7 @@ from wtforms.validators import Optional
 from application.auth.models import CREATE_MEASURE, CREATE_VERSION, DELETE_MEASURE, PUBLISH, UPDATE_MEASURE
 from application.cms import cms_blueprint
 from application.cms.categorisation_service import categorisation_service
-from application.cms.data_utils import ChartObjectDataBuilder
+from application.cms.data_utils import ChartObjectDataBuilder, DataStructureAnalyser
 from application.cms.dimension_service import dimension_service
 from application.cms.exceptions import (
     PageNotFoundException,
@@ -937,12 +937,14 @@ def process_auto_data():
 
     :return: A list of processed versions of input data using different "presets"
     """
+    results = {}
+    request_json = request.json
     if current_app.auto_data_generator:
-        request_json = request.json
-        return_data = current_app.auto_data_generator.build_auto_data(request_json['data'])
-        return json.dumps({'presets': return_data}), 200
-    else:
-        return json.dumps(request.json), 200
+        results['presets'] = current_app.auto_data_generator.build_auto_data(request_json['ethnicity_data'])
+
+    results['structure'] = DataStructureAnalyser().get_data_structure(request_json['data'])
+
+    return json.dumps(results), 200
 
 
 # TODO: Figure out if this endpoint really needs to take topic/subtopic/measure?

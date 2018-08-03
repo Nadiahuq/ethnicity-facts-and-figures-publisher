@@ -884,3 +884,129 @@ class AutoDataGenerator:
                 'order': ind
             } for ind, value in enumerate(data)
         ]}
+
+
+class DataStructureAnalyser:
+    """
+        The DataStructureAnalyser class allows us to detect the structure of datasets
+        With this information we can start automating chart creation
+
+        A dataset analysis ought to return an object of form
+        {
+            'ethnicity': {index: <int>, name: <string>, count: <int>},
+            'secondary': {index: <int>, name: <string>, count: <int>},
+            'errors': [<string>, <string>]
+        }
+        where the secondary object is optional
+
+    """
+
+    class EthnicityColumnMissingException(Exception):
+        pass
+
+    class IncompleteDatacubeException(Exception):
+        pass
+
+    @staticmethod
+    def get_data_structure(data_set):
+
+        headers = data_set[0]
+        data = data_set[1:]
+
+        # split off the ethnicity values
+        try:
+            eth_index, eth_name, eth_values = DataStructureAnalyser._detect_ethnicity_column(data, headers)
+        except ValueError:
+            raise DataStructureAnalyser.EthnicityColumnMissingException()
+
+        # SIMPLE CASE
+        if len(eth_values) == len(data):
+            return DataStructureAnalyser._simple_structure(eth_index, eth_name, len(eth_values))
+
+        # ERROR - SAME NUMBER OF LINES FOR EACH ETHNICITY
+        if len(data) % len(eth_values) != 0:
+            raise DataStructureAnalyser.IncompleteDatacubeException()
+
+        # SECONDARY COLUMN CASE
+        secondary_size = len(data) / len(eth_values)
+        # loop through all the columns
+        for secondary_index in range(0, len(headers)):
+            # except the ethnicity column
+            if secondary_index != eth_index:
+                # check if the number of unique values could complement the ethnicity column
+                secondary_values = set([item[secondary_index] for item in data])
+                if len(secondary_values) == secondary_size:
+
+                    # now check whether we have a match by building sets of pairs
+                    set_of_values_for_ethnicity = {ethnicity: set([]) for ethnicity in eth_values}
+                    for item in data:
+                        ethnicity = item[eth_index]
+                        secondary = item[secondary_index]
+                        set_of_values_for_ethnicity[ethnicity].add(secondary)
+
+                    # check each ethnicity has a full set of pairs
+                    match = True
+                    for ethnicity in eth_values:
+                        if len(set_of_values_for_ethnicity[ethnicity]) != secondary_size:
+                            match = False
+
+                    # return the complex data if there is a match
+                    if match is True:
+                        return DataStructureAnalyser._secondary_structure(eth_index, eth_name, len(eth_values),
+                                                                          secondary_index, headers[secondary_index],
+                                                                          secondary_values)
+
+        raise DataStructureAnalyser.IncompleteDatacubeException()
+
+    @staticmethod
+    def _detect_ethnicity_column(data, headers):
+        DEFAULT_ETHNICITY_COLUMNS = ['ethnicity', 'ethnic group']
+
+        ethnicity_index = find_column(headers, DEFAULT_ETHNICITY_COLUMNS)
+        ethnicity_values = set([item[ethnicity_index] for item in data])
+
+        return ethnicity_index, headers[ethnicity_index], ethnicity_values
+
+    @staticmethod
+    def _simple_structure(index, name, count):
+        return {'ethnicity': {'index': index, 'name': name, 'count': count, 'numeric': False, 'date': False}}
+
+    @staticmethod
+    def _secondary_structure(eth_index, eth_name, eth_count,
+            sec_index, sec_name, sec_values):
+        structure = DataStructureAnalyser._simple_structure(eth_index, eth_name, eth_count)
+        structure['secondary'] = {'index': sec_index, 'name': sec_name, 'count': len(sec_values),
+                                  'numeric': DataStructureAnalyser._all_values_are_numeric(sec_values),
+                                  'date': DataStructureAnalyser._all_values_are_dates(sec_values)}
+        return structure
+
+    @staticmethod
+    def _all_values_are_numeric(values):
+        for value in values:
+            try:
+                float(value)
+            except ValueError:
+                return False
+        return True
+
+    @staticmethod
+    def _all_values_are_dates(values):
+        from dateutil import parser
+
+        for value in values:
+            try:
+                parser.parse(value)
+            except ValueError:
+                return False
+        return True
+
+
+def find_column(headers, column_names):
+    lower_headers = [h.lower() for h in headers]
+    for column_name in column_names:
+        try:
+            index = lower_headers.index(column_name.lower())
+            return index
+        except ValueError:
+            pass
+    raise ValueError

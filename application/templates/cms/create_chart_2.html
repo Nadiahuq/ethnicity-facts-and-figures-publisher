@@ -555,10 +555,12 @@ SCRIPTS
                     type: "post",
                     url: "{{ url_for('cms.process_auto_data') }}",
                     dataType: 'json',
-                    data: JSON.stringify({'data': ethnicity_data}),
+                    data: JSON.stringify({'ethnicity_data': ethnicity_data, 'data': chart_data}),
                     contentType: 'application/json; charset=utf-8',
                     success: function (response) {
                         // upon heavy lifting complete
+
+                        printStructureMessage(response['structure']);
 
                         // populate the ethnicity presets from the response
                         presets = response['presets'];
@@ -582,6 +584,22 @@ SCRIPTS
                 });
             }
 
+            function printStructureMessage(structure) {
+                var ethnicityStructure = structure['ethnicity'];
+                console.log('Ethnicity has', ethnicityStructure['count'], 'values');
+
+                if('secondary' in structure) {
+                    var secondaryStructure = structure['secondary'];
+                    console.log('Secondary column is', "'" + secondaryStructure['name'] + "'", 'and has', secondaryStructure['count'], 'values')
+                    if(secondaryStructure['numeric']) {
+                        console.log(secondaryStructure['name'], 'is numeric')
+                    }
+                    if(secondaryStructure['date']) {
+                        console.log(secondaryStructure['name'], 'contains dates')
+                    }
+                }
+            }
+
             function get_ethnicity_values(data) {
                 var all_data = _.clone(data);
                 var headers = all_data.shift();
@@ -595,7 +613,6 @@ SCRIPTS
 
             function get_ethnicity_column(headers) {
                 var ETHNICITY_COLUMNS = ['ethnicity', 'ethnic group']
-                console.log(ETHNICITY_COLUMNS.indexOf('Ethnicity'.toLowerCase().trim()));
                 for (var index = 0; index < headers.length; index++) {
                     var headerLowerTrim = headers[index].toLowerCase().trim();
                     if (ETHNICITY_COLUMNS.indexOf(headerLowerTrim) >= 0) {
