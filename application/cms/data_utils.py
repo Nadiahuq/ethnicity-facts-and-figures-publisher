@@ -1,6 +1,17 @@
 from application.utils import get_bool
 
 
+def find_column(headers, column_names):
+    lower_headers = [h.lower() for h in headers]
+    for column_name in column_names:
+        try:
+            index = lower_headers.index(column_name.lower())
+            return index
+        except ValueError:
+            pass
+    raise ValueError
+
+
 class Harmoniser:
     default_sort_value = 800
     default_ethnicity_columns = ['ethnicity', 'ethnic group']
@@ -37,18 +48,18 @@ class Harmoniser:
         headers = data.pop(0)
         try:
             if ethnicity_name != '':
-                ethnicity_index = self.find_column(headers, [ethnicity_name])
+                ethnicity_index = find_column(headers, [ethnicity_name])
             else:
-                ethnicity_index = self.find_column(headers, self.default_ethnicity_columns)
+                ethnicity_index = find_column(headers, self.default_ethnicity_columns)
         except ValueError:
             data.insert(0, headers)
             return data
 
         try:
             if ethnicity_type_name != '':
-                ethnicity_type_index = self.find_column(headers, [ethnicity_type_name])
+                ethnicity_type_index = find_column(headers, [ethnicity_type_name])
             else:
-                ethnicity_type_index = self.find_column(headers, self.default_ethnicity_type_columns)
+                ethnicity_type_index = find_column(headers, self.default_ethnicity_type_columns)
         except ValueError:
             # default ethnicity type index to use the ethnicity column (essentially ignore ethnicity types)
             ethnicity_type_index = ethnicity_index
@@ -58,16 +69,6 @@ class Harmoniser:
         data.insert(0, headers)
 
         return data
-
-    def find_column(self, headers, column_names):
-        lower_headers = [h.lower() for h in headers]
-        for column_name in column_names:
-            try:
-                index = lower_headers.index(column_name.lower())
-                return index
-            except ValueError:
-                pass
-        raise ValueError
 
     def append_columns(self, data, ethnicity_column=0, ethnicity_type_column=1):
 

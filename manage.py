@@ -310,5 +310,27 @@ def run_data_migration(migration=None):
                 print(f'Applied data migration: {migration}')
 
 
+@manager.command
+def find_autodata_incompatible_charts():
+    from application.cms.data_utils import find_column
+
+    for dimension in Dimension.query.all():
+        if dimension.chart_source_data is not None:
+            data = dimension.chart_source_data['data']
+            try:
+                ethnicity_column = find_column(data[0], ['ethnicity', 'ethnic group'])
+                ethnicity_values = [item[ethnicity_column] for item in data[1:]]
+                presets = app.auto_data_generator.build_auto_data(ethnicity_values)
+                if len(presets) == 1:
+                    page = dimension.page
+                    if page.latest_version().version == page.version:
+                        print('NO PRESETS:\t%s\t%s\t%s\t%s\t%s'
+                              % (page.parent.parent.title, page.parent.title, page.title, dimension.page_version, dimension.title))
+
+            except ValueError:
+                pass
+                # print('NO ETHNICITY COLUMN: "%s" on page "%s"' % (dimension.title, dimension.page.title))
+
+
 if __name__ == '__main__':
     manager.run()
