@@ -99,8 +99,6 @@ class PageService(Service):
             raise StaleUpdateException("")
         else:
             # Possibly temporary to work out issue with data deletions
-            message = "EDIT MEASURE: Current state of page: %s" % page.to_dict()
-            self.logger.info(message)
             message = "EDIT MEASURE: Data posted to update page: %s" % data
             self.logger.info(message)
 
@@ -586,6 +584,17 @@ class PageService(Service):
                 page.secondary_source_1_frequency_other = None
 
     @staticmethod
+    def set_secondary_source(page, data):
+        if data["secondary_source_1_title"] == "":
+            page.secondary_source_1_type_of_statistic_description = None
+            page.secondary_source_1_publisher_id = ""
+            page.secondary_source_1_date = None
+            page.secondary_source_1_url = ""
+            page.secondary_source_1_type_of_data = None
+            page.secondary_source_1_type_of_statistic_id = None
+            page.secondary_source_1_frequency_id = None
+
+    @staticmethod
     def set_department_source(page, data):
         dept_id = data.pop("department_source", None)
         if dept_id is not None:
@@ -639,6 +648,7 @@ class PageService(Service):
             raise PageUnEditable(message)
 
         self.set_other_fields(data, page)
+        self.set_secondary_source(page, data)
 
 
 page_service = PageService()
