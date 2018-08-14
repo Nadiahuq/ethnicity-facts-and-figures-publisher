@@ -844,6 +844,7 @@ SCRIPTS
                 preview();
             });
 
+
             {% if dimension.table_2_source_data %}
                 var settings = {{dimension.table_2_source_data|safe}};
             {% else %}
@@ -851,6 +852,7 @@ SCRIPTS
             {% endif %}
             
             function initialiseForm() {
+                console.log(settings);
                 if (settings.data) {
                     var data_text = _.map(settings.data, function (d) {
                         return d.join('\t')

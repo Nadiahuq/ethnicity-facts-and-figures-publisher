@@ -842,7 +842,7 @@ def create_table(topic, subtopic, measure, version, dimension):
         "topic": topic_page,
         "subtopic": subtopic_page,
         "measure": measure_page,
-        "dimension": dimension_object.to_dict(),
+        "dimension": dimension_dict,
     }
 
     return render_template("cms/create_table_2.html", **context)
