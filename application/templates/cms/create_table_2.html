@@ -48,13 +48,13 @@
         <div id="data-panel" class="data-panel">
             <div class="column-full">
                 <h2 class="heading-medium no-top-border">1. Data</h2>
-                <form>
+                <form onsubmit="return false;">
                     <div class="form-group">
                         <textarea class="form-control" id="data_text_area" rows="10"
                                   {% if form_disabled %}disabled="disabled"{% endif %}></textarea>
                     </div>
-                    <div class="btn button btn-primary" id="confirm-data">Okay</div>
-                    <div class="btn button btn-primary" id="cancel-edit-data">Cancel</div>
+                    <button class="btn button btn-primary" id="confirm-data">Okay</button>
+                    <button class="btn button btn-primary" id="cancel-edit-data">Cancel</button>
                 </form>
             </div>
         </div>
@@ -67,11 +67,11 @@
                     and columns with an option to return to the DATA ENTRY PANEL
                 #}
                 <div id="tab_seperated_content" class="chart-builder-section grid-row">
-                    <form>
+                    <form onsubmit="return false;">
                         <h2 class="heading-medium">1. Data</h2>
                         <div>
                             <p id="data-description">R rows by C columns</p>
-                            <div class="btn button btn-primary" id="edit-data">Edit</div>
+                            <button class="btn button btn-primary" id="edit-data">Edit</button>
                         </div>
                     </form>
                 </div>
@@ -131,7 +131,7 @@
                         {#
                             Select style
                         #}
-                        <select class="form-control" id="grouped-bar__data_style"
+                        <select class="form-control" id="complex-table__data-style"
                                 {% if form_disabled %}disabled="disabled"{% endif %}>
                             <option value="ethnicity_as_row" selected>Use ethnicity for rows</option>
                             <option value="ethnicity_as_column">Use ethnicity for columns</option>
@@ -345,7 +345,7 @@ SCRIPTS
             $('#preview').click(preview);
             $('#confirm-data').click(setTableData);
             $('#edit-data').click(editTableData);
-            $('#cancel-data').click(cancelEditData);
+            $('#cancel-edit-data').click(cancelEditData);
             $('#save').click(saveTable);
             $('#exit').click(back);
 
@@ -353,9 +353,9 @@ SCRIPTS
                 window.location.replace("{{ url_for('cms.edit_dimension', topic=topic.guid, subtopic=subtopic.guid, measure=measure.guid, version=measure.version, dimension=dimension.guid) }}")
             }
 
-            {#
+            /*
                 Events from the DATA ENTRY PANEL
-             #}
+             */
 
             function setTableData(evt) {
                 handleNewData(function () {
@@ -369,9 +369,10 @@ SCRIPTS
             }
 
             function editTableData(evt) {
-                currentData = $('#data_text_area').val();
+                current_data = $('#data_text_area').val();
                 current_settings = getTablePageSettings();
                 $('#data-panel').show();
+                $('#data_text_area').focus();
                 $('#edit-panel').hide();
             }
 
@@ -382,9 +383,9 @@ SCRIPTS
             }
 
 
-            {#
+            /*
                 Initialise the main editor after DATA ENTRY PANEL change
-             #}
+            */
 
             function handleNewData(on_success) {
 
@@ -443,9 +444,9 @@ SCRIPTS
             }
 
 
-            {#
+            /*
                 SETUP
-            #}
+            */
 
             function populateTableOptions(headers) {
                 var listWithNone = dropdownHtmlWithDefault(headers, '[None]');
@@ -507,11 +508,19 @@ SCRIPTS
                 return html;
             }
 
-            {#
+            /*
                 PREVIEW
                 Render the table as a preview using drawTable() from rd-graph.js
                 (this the exact same method that is used front-end)
-            #}
+            */
+            
+            function dataColumnChange(evt, columnName) {
+              if ($('#' + this.id + '_name').val() === "") {
+                $('#' + this.id + '_name').val($('#' + this.id + ' option:selected').val());
+              };
+              
+              preview(evt);
+            }
 
             function preview(evt) {
                 var tips = getTips();
@@ -575,10 +584,10 @@ SCRIPTS
                 }
             }
 
-            {#
+            /*
                 SAVE
                 Save the table by building a tableObject and bundling up all the setting then sending it to the backend
-            #}
+            */
 
             function saveTable(evt) {
 
@@ -621,69 +630,44 @@ SCRIPTS
                 return {
                     'data': textToData(tabbedData),
                     'preset': getPresetCode(),
-                    'tableOptions': getTableTypeOptions('bar_table'),
-                    'tableFormat': getTableFormat(),
+                    'tableOptions': getTableTypeOptions(),
+                    'tableValues': getTableValues(),
                     'version': '2.0'
                 }
             }
 
-            function getTableTypeOptions(tableType) {
-                switch (tableType) {
-                    case 'bar_table':
-                        return {};
-                    case 'line_graph':
-                        return {'x_axis_column': $('#line__x-axis_column').val()};
-                    case 'grouped_bar_table':
-                        var dataStyle = $('#grouped-bar__data_style').val();
-                        if (dataStyle === 'ethnicity_as_row') {
-                            return {'data_style': dataStyle, 'bar_column': $('#ethnicity-as-row__columns').val()}
-                        } else {
-                            return {'data_style': dataStyle, 'group_column': $('#ethnicity-as-column__rows').val()}
-                        }
-                    case 'component_table':
-                        var dataStyle = $('#component__data_style').val();
-                        if (dataStyle === 'ethnicity_as_sections') {
-                            return {
-                                'data_style': dataStyle, 'bar_column': $('#component__bar_column').val(),
-                                'bar_order': $('#component__bar_order').val()
-                            }
-                        } else {
-                            return {
-                                'data_style': dataStyle, 'section_column': $('#component__section_column').val(),
-                                'section_order': $('#component__section_order').val()
-                            }
-                        }
-                    case 'panel_bar_table':
-                        var dataStyle = $('#panel-bar__data_style').val();
-                        if (dataStyle === 'ethnicity_as_panels') {
-                            return {
-                                'data_style': dataStyle, 'bar_column': $('#panel-bar__bar_column').val(),
-                                'bar_order': $('#panel-bar__bar_order').val()
-                            }
-                        } else {
-                            return {
-                                'data_style': dataStyle, 'panel_column': $('#panel-bar__panel_column').val(),
-                                'panel_order': $('#panel-bar__panel_order').val()
-                            }
-                        }
-                    case 'panel_line_table':
-                        return {'x_axis_column': $('#panel-line__x-axis_column').val()};
-                    default:
-                        return {};
+            function getTableTypeOptions() {
+              if (get_is_simple_data(table_data)) {
+                return {};
+              }
+              else {
+                var dataStyle = $('#complex-table__data-style').val();
+                
+                var selection = dataStyle === 'ethnicity_as_row' ? $('#ethnicity-as-row__columns').val() : $('#ethnicity-as-column__rows').val();
+                var order = dataStyle === 'ethnicity_as_row' ? $('#ethnicity-as-row__column-order').val() : $('#ethnicity-as-column__row-order').val();
+                
+                return {
+                  'data_style': $('#complex-table__data-style').val(),
+                  'selection': selection,
+                  'order': order,
                 }
+              }
             }
 
-            function getTableFormat() {
-                return {
-                    'table_title': $('#table_title').val(),
-                    'x_axis_label': $('#x_axis_label').val(),
-                    'y_axis_label': $('#y_axis_label').val(),
-                    'number_format': $('#number_format').val(),
-                    'number_format_prefix': $('#number_format_prefix').val(),
-                    'number_format_suffix': $('#number_format_suffix').val(),
-                    'number_format_min': $('#number_format_min').val(),
-                    'number_format_max': $('#number_format_max').val()
-                }
+            function getTableValues() {
+              return {
+                'table_title': $('#table_title').val(),
+                'table_column_1': $('#table_column_1').val(),
+                'table_column_1_name': $('#table_column_1_name').val(),
+                'table_column_2': $('#table_column_2').val(),
+                'table_column_2_name': $('#table_column_2_name').val(),
+                'table_column_3': $('#table_column_3').val(),
+                'table_column_3_name': $('#table_column_3_name').val(),
+                'table_column_4': $('#table_column_4').val(),
+                'table_column_4_name': $('#table_column_4_name').val(),
+                'table_column_5': $('#table_column_5').val(),
+                'table_column_5_name': $('#table_column_5_name').val(),
+              }
             }
 
             function getPresetCode() {
@@ -722,7 +706,6 @@ SCRIPTS
             function innerBuildTableObject() {
                 var tableObject = null;
                 var preset = getPresetWithCode($('#ethnicity_settings').val());
-                console.log('simple table? ' + get_is_simple_data(table_data));
                 if (get_is_simple_data(table_data)) {
                   tableObject = buildTableObject(buildDataWithPreset(preset, table_data, buildTableColumns()),
                       $('#table_title').val(),
@@ -737,7 +720,7 @@ SCRIPTS
                       'Ethnicity',
                       '[None]');
                 } else {
-                    if ($('#grouped-bar__data_style').val() === 'ethnicity_as_row') {
+                    if ($('#complex-table__data-style').val() === 'ethnicity_as_row') {
                         var all_table_columns = buildTableColumns().concat(buildEthnicityByRowColumns());
                         tableObject = buildTableObject(buildDataWithPreset(preset, table_data, all_table_columns),
                             $('#table_title').val(),
@@ -805,9 +788,9 @@ SCRIPTS
             }
 
 
-            {#
+            /*
                 EVENT HANDLERS
-             #}
+            */
             // Switch TABLE_OPTIONS panels
             $('#ethnicity_settings').change(preview);
 
@@ -815,23 +798,14 @@ SCRIPTS
                $('#ethnicity_settings').val(preset);
             }
 
-            {#
+            /*
                 TABLE PANEL events
-            #}
+            */
 
-            // LINE events
-            $('#line__x-axis_column').change(preview);
-
-            // GROUPED-BAR events
-            $('#grouped-bar__data_style').change(function () {
-                if ($(this).val() === "ethnicity_as_row") {
-                    $('#complex-table__ethnicity-is-row').show();
-                    $('#complex-table__ethnicity-is-column').hide();
-                } else {
-                    $('#complex-table__ethnicity-is-row').hide();
-                    $('#complex-table__ethnicity-is-column').show();
-                }
-                preview();
+            // COMPLEX TABLE events
+            $('#complex-table__data-style').change(function () {
+              selectDataStyle();
+              preview();
             });
             $('#ethnicity-as-row__columns').change(preview);
             $('#grouped-bar__bar_order').change(preview);
@@ -839,51 +813,25 @@ SCRIPTS
             $('#grouped-bar__groups_order').change(preview);
 
             $('#table_column_1_name').change(preview);
-            $('#table_column_1').change(preview);
+            $('#table_column_1').change(dataColumnChange);
             $('#table_column_2_name').change(preview);
-            $('#table_column_2').change(preview);
+            $('#table_column_2').change(dataColumnChange);
             $('#table_column_3_name').change(preview);
-            $('#table_column_3').change(preview);
+            $('#table_column_3').change(dataColumnChange);
             $('#table_column_4_name').change(preview);
-            $('#table_column_4').change(preview);
+            $('#table_column_4').change(dataColumnChange);
             $('#table_column_5_name').change(preview);
-            $('#table_column_5').change(preview);
-
-
-            // COMPONENT events
-            $('#component__data_style').change(function () {
-                if ($(this).val() === "ethnicity_as_column") {
-                    $('#component__ethnicity_is_bar').show();
-                    $('#component__ethnicity_is_sections').hide();
+            $('#table_column_5').change(dataColumnChange);
+            
+            function selectDataStyle() {
+                if ($('#complex-table__data-style').val() === "ethnicity_as_row") {
+                    $('#complex-table__ethnicity-is-row').show();
+                    $('#complex-table__ethnicity-is-column').hide();
                 } else {
-                    $('#component__ethnicity_is_bar').hide();
-                    $('#component__ethnicity_is_sections').show();
+                    $('#complex-table__ethnicity-is-row').hide();
+                    $('#complex-table__ethnicity-is-column').show();
                 }
-                preview();
-            });
-            $('#component__section_column').change(preview);
-            $('#component__section_order').change(preview);
-            $('#component__bar_column').change(preview);
-            $('#component__bar_order').change(preview);
-
-            // PANEL-BAR events
-            $('#panel-bar__data_style').change(function () {
-                if ($(this).val() === "ethnicity_as_panel_bars") {
-                    $('#panel-bar__ethnicity_as_column').show();
-                    $('#panel-bar__ethnicity_as_panels').hide();
-                } else {
-                    $('#panel-bar__ethnicity_as_column').hide();
-                    $('#panel-bar__ethnicity_as_panels').show();
-                }
-                preview();
-            });
-            $('#panel-bar__bar_column').change(preview);
-            $('#panel-bar__bar_order').change(preview);
-            $('#panel-bar__panel_column').change(preview);
-            $('#panel-bar__panel_order').change(preview);
-
-            // PANEL-LINE events
-            $('#panel-line__x-axis_column').change(preview);
+            }
 
 
             // Show-hide NUMBER-FORMAT__OTHER panel
@@ -896,15 +844,13 @@ SCRIPTS
                 preview();
             });
 
-
+            {% if dimension.table_2_source_data %}
+                var settings = {{dimension.table_2_source_data|safe}};
+            {% else %}
+                var settings = {};
+            {% endif %}
+            
             function initialiseForm() {
-
-                {% if dimension.table_2_source_data %}
-                    var settings = {{dimension.table_2_source_data|safe}};
-                {% else %}
-                    var settings = {};
-                {% endif %}
-
                 if (settings.data) {
                     var data_text = _.map(settings.data, function (d) {
                         return d.join('\t')
@@ -918,87 +864,45 @@ SCRIPTS
                         preview()
                     })
                 }
-            }
+            };
 
             function setupTablebuilderWithSettings(settings) {
                 if(settings.preset) {
                     selectPreset(settings.preset);
                 }
 
-                $('#table_title').val(settings.tableFormat.table_title);
-
-                {# switch (settings.type) {
-                    case 'line_graph':
-                        var columnValue = settings.tableOptions.x_axis_column;
-                        $('#line__x-axis_column').val(columnValue);
-                        break;
-                    case 'grouped_bar_table':
-                        var dataStyle = settings.tableOptions.data_style;
-                        $('#grouped-bar__data_style').val(dataStyle);
-                        if (dataStyle === 'ethnicity_as_row') {
-                            $('#ethnicity-as-row__columns').val(settings.tableOptions.bar_column);
-                            $('#complex-table__ethnicity-is-row').show();
-                            $('#complex-table__ethnicity-is-column').hide();
-                        } else {
-                            $('#ethnicity-as-column__rows').val(settings.tableOptions.group_column);
-                            $('#complex-table__ethnicity-is-row').hide();
-                            $('#complex-table__ethnicity-is-column').show();
-                        }
-                        break;
-                    case 'component_table':
-                        var dataStyle = settings.tableOptions.data_style;
-                        $('#component__data_style').val(dataStyle);
-                        if (dataStyle === 'ethnicity_as_sections') {
-                            $('#component__bar_column').val(settings.tableOptions.bar_column);
-                            $('#component__bar_order').val(settings.tableOptions.bar_order);
-                            $('#component__ethnicity_is_sections').show();
-                            $('#component__ethnicity_is_bar').hide();
-                        } else {
-                            $('#component__section_column').val(settings.tableOptions.section_column);
-                            $('#component__section_order').val(settings.tableOptions.section_order);
-                            $('#component__ethnicity_is_sections').hide();
-                            $('#component__ethnicity_is_bar').show();
-                        }
-                        break;
-                    case 'panel_bar_table':
-                        var dataStyle = settings.tableOptions.data_style;
-                        $('#panel-bar__data_style').val(dataStyle);
-                        if (dataStyle === 'ethnicity_as_panels') {
-                            $('#panel-bar__bar_column').val(settings.tableOptions.bar_column);
-                            $('#panel-bar__bar_order').val(settings.tableOptions.bar_order);
-                            $('#panel-bar__ethnicity_as_column').hide();
-                            $('#panel-bar__ethnicity_as_panels').show();
-                        } else {
-                            $('#panel-bar__panel_column').val(settings.tableOptions.panel_column);
-                            $('#panel-bar__panel_order').val(settings.tableOptions.panel_order);
-                            $('#panel-bar__ethnicity_as_column').show();
-                            $('#panel-bar__ethnicity_as_panels').hide();
-                        }
-                        break;
-                    case 'panel_line_table':
-                        var columnValue = settings.tableOptions.x_axis_column;
-                        $('#panel-line__x-axis_column').val(columnValue);
-                        break;
-                    default:
-                        break;
+                $('#table_title').val(settings.tableValues.table_title);
+                $('#complex-table__data-style').val(settings.tableOptions.data_style);
+                
+                if (settings.tableOptions.data_style === 'ethnicity_as_row') {
+                  $('#ethnicity-as-row__columns').val(settings.tableOptions.selection);
+                  $('#ethnicity-as-row__column-order').val(settings.tableOptions.order);
+                } else {
+                  $('#ethnicity-as-column__rows').val(settings.tableOptions.selection);
+                  $('#ethnicity-as-column__row-order').val(settings.tableOptions.order);
                 }
-                $('#number_format').val(settings.tableFormat.number_format);
-                $('#number_format_prefix').val(settings.tableFormat.number_format_prefix);
-                $('#number_format_suffix').val(settings.tableFormat.number_format_suffix);
-                $('#number_format_min').val(settings.tableFormat.number_format_min);
-                $('#number_format_max').val(settings.tableFormat.number_format_max);
-                if (settings.tableFormat.number_format === 'other') {
-                    $('#other_number_format').show();
-                } #}
+                
+                selectDataStyle();
+                
+                $('#table_column_1').val(settings.tableValues.table_column_1);
+                $('#table_column_1_name').val(settings.tableValues.table_column_1_name);
+                $('#table_column_2').val(settings.tableValues.table_column_2);
+                $('#table_column_2_name').val(settings.tableValues.table_column_2_name);
+                $('#table_column_3').val(settings.tableValues.table_column_3);
+                $('#table_column_3_name').val(settings.tableValues.table_column_3_name);
+                $('#table_column_4').val(settings.tableValues.table_column_4);
+                $('#table_column_4_name').val(settings.tableValues.table_column_4_name);
+                $('#table_column_5').val(settings.tableValues.table_column_5);
+                $('#table_column_5_name').val(settings.tableValues.table_column_5_name);
             }
 
             initialiseForm();
         });
 
-        {#
+        /*
          Custom number format is far more complicated than it needs to be
          However it is viable to just use this function to grab it until it becomes a problem
-         #}
+        */
 
         function getNumberFormat() {
             var format = $('#number_format').val();
@@ -1043,7 +947,7 @@ SCRIPTS
 
         function checkRequiredFields() {
             if (get_is_simple_data(table_data) === false) {
-              if ($('#grouped-bar__data_style').val() === 'ethnicity_as_row') {
+              if ($('#complex-table__data-style').val() === 'ethnicity_as_row') {
                   if ($('#ethnicity-as-row__columns').val() === '[Required]') {
                       return [{'errorType': MISSING_FIELD_ERROR, 'field': 'ethnicity-as-row__columns'}]
                   };
@@ -1075,7 +979,7 @@ SCRIPTS
             if (get_is_simple_data(table_data)) {
               return null;
             } else {
-              if ($('#grouped-bar__data_style').val() === 'ethnicity_as_row') {
+              if ($('#complex-table__data-style').val() === 'ethnicity_as_row') {
                   return $('#ethnicity-as-row__columns').val()
               } else {
                   return $('#ethnicity-as-column__rows').val()
@@ -1085,9 +989,9 @@ SCRIPTS
     </script>
 
     <script>
-        {#
+        /*
             Helper for selenium tests
-         #}
+        */
 
         function pasteJson(json) {
             var data_text_area = document.getElementById('data_text_area');

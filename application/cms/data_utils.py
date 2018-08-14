@@ -182,6 +182,10 @@ class TableObjectDataBuilder:
             "data": TableObjectDataBuilder.get_data_table(table_object),
         }
 
+    @staticmethod
+    def upgrade_v1_to_v2(table_object, table_settings):
+        return None
+
     """
     Builds a data table based on an object from the rd-cms table builder
     """
