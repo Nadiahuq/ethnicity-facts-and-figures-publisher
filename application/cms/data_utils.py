@@ -227,6 +227,10 @@ class TableObjectDataBuilder:
         return [group, item["category"]] + item["values"]
 
 
+    @staticmethod
+    def upgrade_v1_to_v2(table_object, table_settings):
+        return {}
+
 class TableObjectTableBuilder:
     @staticmethod
     def build(table_object):
@@ -236,10 +240,6 @@ class TableObjectTableBuilder:
             table = TableObjectDataBuilder.build(table_object)
             table["data"] = TableObjectTableBuilder.get_data_table(table_object)
             return table
-
-    @staticmethod
-    def upgrade_v1_to_v2(chart_object, chart_settings):
-        return None
 
     @staticmethod
     def get_data_table(table_object):
