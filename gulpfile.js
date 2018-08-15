@@ -120,7 +120,7 @@ gulp.task('watch', function () {
   gulp.watch(['./application/src/js/**/*.js', './application/src/sass/*.scss', './application/src/sass/**/*.scss'], gulp.series('version'));
 });
 
-gulp.task('version-js', gulp.parallel('scripts-all', 'scripts-charts', 'scripts-cms', 'scripts-cms-autosave'), function() {
+gulp.task('version-js', gulp.parallel('scripts-all', 'scripts-charts', 'scripts-cms', 'scripts-cms-autosave', 'scripts-tablebuilder2', 'scripts-chartbuilder2'), function() {
   return gulp.src(['./application/static/javascripts/all.js',
     './application/static/javascripts/charts.js',
     './application/static/javascripts/cms.js',
