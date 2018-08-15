@@ -106,6 +106,8 @@ all*.js
 charts*.js
 cms*.js
 rev-manifest.json
+application/static/javascripts/tablebuilder2*.js
+application/static/javascripts/chartbuilder2*.js
 *.map
 
 # Visual Studio Code
