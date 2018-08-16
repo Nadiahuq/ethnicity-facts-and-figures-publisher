@@ -1058,19 +1058,6 @@ def test_grouped_table_from_json_returns_correct_groups():
     assert data_group_lists_equal(grouped.groups, grouped_restored.groups)
 
 
-def test_update_simple_v1_v2_generates_settings_object():
-    # GIVEN
-    # a v1 settings object
-
-    # WHEN
-    # we run migrate
-
-    # THEN
-    # an object with expected fields is created
-
-    pass
-
-
 def data_points_equal(point_1, point_2):
     """
     Compare 2 data rows
@@ -1180,12 +1167,12 @@ def test_v1_to_v2_upgrade_migrates_data_for_simple_tables():
 
     # THEN
     # data should contain values for each
-    assert 'data' in v2_settings
-    assert len(v2_settings['data']) == len(v1_settings['data'])
-    assert 'Ethnicity' in v2_settings['data'][0]
-    assert 'Value' in v2_settings['data'][0]
-    assert 'Average population per month' in v2_settings['data'][0]
-    assert 'Average number of self harm incidents per month' in v2_settings['data'][0]
+    assert "data" in v2_settings
+    assert len(v2_settings["data"]) == len(v1_settings["data"])
+    assert "Ethnicity" in v2_settings["data"][0]
+    assert "Value" in v2_settings["data"][0]
+    assert "Average population per month" in v2_settings["data"][0]
+    assert "Average number of self harm incidents per month" in v2_settings["data"][0]
 
 
 def test_v1_to_v2_upgrade_migrates_data_for_grouped_tables():
@@ -1202,9 +1189,41 @@ def test_v1_to_v2_upgrade_migrates_data_for_grouped_tables():
 
     # THEN
     # data should contain values for each
-    assert 'data' in v2_settings
-    assert len(v2_settings['data']) == len(v1_settings['data'])
-    assert 'Ethnicity' in v2_settings['data'][0]
-    assert 'Value' in v2_settings['data'][0]
-    assert 'Average population per month' in v2_settings['data'][0]
-    assert 'Average number of self harm incidents per month' in v2_settings['data'][0]
+    assert "data" in v2_settings
+    assert len(v2_settings["data"]) == len(v1_settings["data"])
+    assert "Ethnicity" in v2_settings["data"][0]
+    assert "Value" in v2_settings["data"][0]
+    assert "Average population per month" in v2_settings["data"][0]
+    assert "Average number of self harm incidents per month" in v2_settings["data"][0]
+
+
+def test_v1_to_v2_upgrade_returns_blank_dict_for_simple_options():
+    # GIVEN
+    # simple v1 table and settings
+    v1_table_and_settings = v1_settings_simple()
+    v1_table = v1_table_and_settings["table"]
+    v1_settings = v1_table_and_settings["table_source_data"]
+
+    # WHEN
+    # we upgrade
+    v2_settings = TableObjectDataBuilder.upgrade_v1_to_v2(v1_table, v1_settings)
+
+    # THEN
+    # v2 tableOptions for a simple table should be an empty dict
+    assert v2_settings["tableOptions"] == {}
+
+
+def test_v1_to_v2_upgrade_returns_blank_dict_for_ethnicity_as_row_table():
+    # GIVEN
+    # simple v1 table and settings
+    v1_table_and_settings = v1_settings_ethnicity_as_rows()
+    v1_table = v1_table_and_settings["table"]
+    v1_settings = v1_table_and_settings["table_source_data"]
+
+    # WHEN
+    # we upgrade
+    v2_settings = TableObjectDataBuilder.upgrade_v1_to_v2(v1_table, v1_settings)
+
+    # THEN
+    # v2 tableOptions for a simple table should be an empty dict
+    assert v2_settings["tableOptions"] == {"data_type": "ethnicity_by_row", "selection": "Time", "order": "[None]"}
