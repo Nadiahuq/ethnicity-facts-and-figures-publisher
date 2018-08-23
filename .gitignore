@@ -110,3 +110,7 @@ rev-manifest.json
 
 # Visual Studio Code
 .vscode/
+
+# Backstop/visual regression testing
+backstop_data/bitmaps_*/
+backstop_data/html_report/
