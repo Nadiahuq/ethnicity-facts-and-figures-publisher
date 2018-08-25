@@ -3,5 +3,6 @@ module.exports = function(casper, scenario, vp) {
 
   casper.then(function () {
     casper.echo('SCENARIO END> ' + scenario.label + ', ' + vp.label);
+    casper.wait(2000);
   });
 };
