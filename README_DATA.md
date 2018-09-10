@@ -50,7 +50,7 @@ AutoDataGenerator compares the list of standardised data from stage 1 to each pr
 AutoDataGenerator also appends a "custom" preset which has had no processing. This means that AutoDataGenerator always returns something, even if input data doesn't fit any existing preset
 
 
-## The Chartbuilders
+## The Chartbuilders 
 
 Charts in the Ethnicity Facts and Figures ecosystem works on three files
 
