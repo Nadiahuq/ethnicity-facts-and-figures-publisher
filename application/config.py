@@ -21,6 +21,7 @@ class Config:
     DEBUG = False
     LOG_LEVEL = logging.INFO
     ENVIRONMENT = os.environ.get("ENVIRONMENT", "PRODUCTION")
+    FLASK_ENV = os.environ.get("FLASK_ENV", "production")
     SECRET_KEY = os.environ["SECRET_KEY"]
     PROJECT_NAME = "rd_cms"
     BASE_DIRECTORY = dirname(dirname(os.path.abspath(__file__)))
@@ -115,6 +116,7 @@ class DevConfig(Config):
     DEBUG = True
     LOG_LEVEL = logging.DEBUG
     ENVIRONMENT = "DEVELOPMENT"
+    FLASK_ENV = os.environ.get("FLASK_ENV", "development")
     SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_DOMAIN = False
     SERVER_NAME = "localhost:5000"
