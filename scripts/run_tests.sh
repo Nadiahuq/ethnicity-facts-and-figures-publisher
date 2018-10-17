@@ -31,5 +31,11 @@ display_result $? 1 "Code style check"
 npx gulp
 display_result $? 2 "Frontend asset build check"
 
-py.test
+if [[ -z "${VERBOSE_TESTS}" ]]; then
+  PYTEST_FLAGS=
+else
+  PYTEST_FLAGS="-vvvs"
+fi
+
+py.test ${PYTEST_FLAGS}
 display_result $? 3 "Python tests"
