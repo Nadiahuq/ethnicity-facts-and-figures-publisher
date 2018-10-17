@@ -45,6 +45,8 @@ class BasePage:
         self.base_url = base_url
 
     def is_current(self):
+        print(self.base_url)
+        print(self.driver.current_url)
         return self.wait_until_url_is(self.base_url)
 
     def wait_for_seconds(self, seconds):
@@ -85,7 +87,7 @@ class BasePage:
         self.driver.delete_all_cookies()
 
     def wait_until_url_is(self, url):
-        element = WebDriverWait(self.driver, 10).until(self.url_contains(url))
+        element = WebDriverWait(self.driver, 20).until(self.url_contains(url))
         return element
 
     def wait_until_url_contains(self, text):
