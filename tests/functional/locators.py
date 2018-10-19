@@ -69,7 +69,7 @@ class EditMeasureLocators:
     STATUS_LABEL = (By.ID, "status")
     LOWEST_LEVEL_OF_GEOGRAPHY_RADIO = (By.XPATH, "//*[@type='radio']")
     SAVE_BUTTON = (By.NAME, "save")
-    SAVE_AND_REVIEW_BUTTON = (By.NAME, "save-and-review")
+    SAVE_AND_REVIEW_BUTTON = (By.ID, "save-and-review")
     SEND_TO_DEPARTMENT_REVIEW_BUTTON = (By.ID, "send-to-department-review")
     REJECT_BUTTON = (By.ID, "reject-measure")
     SEND_TO_DRAFT_BUTTON = (By.ID, "send-back-to-draft")
