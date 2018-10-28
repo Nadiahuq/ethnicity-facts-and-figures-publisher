@@ -35,6 +35,8 @@ def request_build():
 
 
 def build_site(app):
+    app.config["STATIC_MODE"] = True
+
     Session = sessionmaker(db.engine)
     with make_session_scope(Session) as session:
         builds = session.query(Build).filter(Build.status == "PENDING").order_by(desc(Build.created_at)).all()

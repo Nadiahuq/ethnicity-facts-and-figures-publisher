@@ -47,12 +47,6 @@ def do_it(application, build):
         delete_files_from_repo(build_dir)
         create_versioned_assets(build_dir)
 
-        # Inject static_mode=True into all Jinja render_template calls so that pages are automatically rendered in the
-        # correct mode.
-        @application.context_processor
-        def enforce_static_mode():
-            return dict(static_mode=True)
-
         local_build = application.config["LOCAL_BUILD"]
 
         homepage = Page.query.filter_by(page_type="homepage").one()
@@ -85,14 +79,10 @@ def build_and_upload_error_pages(application):
     other tweaked configuration (different bucket, different directory structure on upload) that made it slightly
     convoluted and confusing to integrate into the main site build.
     """
+    application.config["STATIC_MODE"] = True
+
     with application.app_context():
         build_dir = make_new_build_dir(application)
-
-        # Inject static_mode=True into all Jinja render_template calls so that pages are automatically rendered in the
-        # correct mode.
-        @application.context_processor
-        def enforce_static_mode():
-            return dict(static_mode=True)
 
         local_build = application.config["LOCAL_BUILD"]
 

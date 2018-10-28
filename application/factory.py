@@ -6,7 +6,7 @@ import logging
 from jinja2 import StrictUndefined
 from jinja2.ext import do as jinja_do
 
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request, send_from_directory, has_request_context
 from flask_security import SQLAlchemyUserDatastore, Security, current_user
 from raven.contrib.flask import Sentry
 
@@ -35,6 +35,7 @@ from application.cms.page_service import page_service
 from application.cms.scanner_service import scanner_service
 from application.cms.upload_service import upload_service
 from application.dashboard.trello_service import trello_service
+from application.utils import get_bool
 
 from application.static_site.filters import (
     render_markdown,
@@ -174,6 +175,11 @@ def create_app(config_object):
             VIEW_DASHBOARDS,
         )
 
+        static_mode = app.config["STATIC_MODE"]
+        if has_request_context():
+            # If the application is configured in static mode, a request param _cannot_ override that.
+            static_mode = static_mode or get_bool(request.args.get("static_mode", False))
+
         return dict(
             COPY_MEASURE=COPY_MEASURE,
             CREATE_MEASURE=CREATE_MEASURE,
@@ -187,6 +193,7 @@ def create_app(config_object):
             UPDATE_MEASURE=UPDATE_MEASURE,
             VIEW_DASHBOARDS=VIEW_DASHBOARDS,
             get_content_security_policy=get_content_security_policy,
+            static_mode=static_mode,
         )
 
     return app

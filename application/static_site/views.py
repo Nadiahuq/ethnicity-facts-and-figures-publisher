@@ -33,9 +33,7 @@ def index():
         key=lambda topic: topic.title,
     )
 
-    return render_template(
-        "static_site/index.html", topics=topics, static_mode=get_bool(request.args.get("static_mode", False))
-    )
+    return render_template("static_site/index.html", topics=topics)
 
 
 @static_site_blueprint.route("/ethnicity-in-the-uk")
@@ -100,13 +98,7 @@ def topic(topic_uri):
         for subtopic in subtopics
     }
 
-    return render_template(
-        "static_site/topic.html",
-        topic=topic,
-        subtopics=subtopics,
-        measures=measures,
-        static_mode=get_bool(request.args.get("static_mode", False)),
-    )
+    return render_template("static_site/topic.html", topic=topic, subtopics=subtopics, measures=measures)
 
 
 @static_site_blueprint.route("/<topic_uri>/<subtopic_uri>/<measure_uri>/<version>/data.json")
@@ -183,7 +175,6 @@ def measure_page(topic_uri, subtopic_uri, measure_uri, version):
         versions=versions,
         first_published_date=first_published_date,
         edit_history=edit_history,
-        static_mode=get_bool(request.args.get("static_mode", False)),
     )
 
 
