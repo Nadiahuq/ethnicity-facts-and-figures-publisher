@@ -1,3 +1,5 @@
+{% from "_shared/_nav_link.html" import render_nav_link %}
+
 <header id="global-header" class="with-proposition">
   <div class="header-wrapper">
     <div class="header-global">
@@ -14,37 +16,20 @@
             Ethnicity facts and figures
           </a>
           <ul class="header-nav">
-            <li><a href="{{ url_for('static_site.ethnicity_in_the_uk') }}">Ethnicity in the UK</a></li>
-            <li><a href="{{ url_for('static_site.background') }}">Background</a></li>
-            {% if not static_mode and measure_page %}
-              <li>
-                {% if measure_page.latest_version() %}
-                    <a href="{{ url_for('cms.edit_measure_page',
-                 topic_uri=topic_uri,
-                 subtopic_uri=subtopic_uri,
-                 measure_uri=measure_page.uri,
-                 version=measure_page.version) }}">Edit</a>
-                {% else %}
-                    <a href="{{ url_for('cms.list_measure_page_versions',
-                        topic_uri=topic_uri,
-                        subtopic_uri=subtopic_uri,
-                        measure_uri=measure_page.uri) }}">Edit</a>
-                {% endif %}
-              </li>
-                <li>
-                {% if measure_page.latest_version() %}
-                    <a href="{{ url_for('static_site.measure_page_markdown',
-                 topic_uri=topic_uri,
-                 subtopic_uri=subtopic_uri,
-                 measure_uri=measure_page.uri,
-                 version=measure_page.version) }}">Export</a>
-                {% else %}
-                    <a href="{{ url_for('cms.list_measure_page_versions',
-                        topic_uri=topic_uri,
-                        subtopic_uri=subtopic_uri,
-                        measure_uri=measure_page.uri) }}">Export</a>
-                {% endif %}
-              </li>
+            {{ render_nav_link(url=url_for('static_site.ethnicity_in_the_uk'), label="Ethnicity in the UK")}}
+            {{ render_nav_link(url=url_for('static_site.background'), label="Background")}}
+            
+            {% if not static_mode and measure_page is defined and measure_page %}
+              {% if measure_page.latest_version() %}
+                {% set edit_measure_url = url_for('cms.edit_measure_page', topic_uri=topic_uri, subtopic_uri=subtopic_uri, measure_uri=measure_page.uri, version=measure_page.version) %}
+                {% set export_measure_url = url_for('static_site.measure_page_markdown', topic_uri=topic_uri, subtopic_uri=subtopic_uri, measure_uri=measure_page.uri, version=measure_page.version) %}
+              {% else %}
+                {% set edit_measure_url = url_for('cms.list_measure_page_versions', topic_uri=topic_uri, subtopic_uri=subtopic_uri, measure_uri=measure_page.uri) %}
+                {% set export_measure_url = url_for('cms.list_measure_page_versions', topic_uri=topic_uri, subtopic_uri=subtopic_uri, measure_uri=measure_page.uri) %}
+              {% endif %}
+              
+              {{ render_nav_link(url=edit_measure_url, label="Edit") }}
+              {{ render_nav_link(url=export_measure_url, label="Export") }}
             {% endif %}
           </ul>
         </nav>
