@@ -371,6 +371,7 @@ def edit_measure_page(topic_uri, subtopic_uri, measure_uri, version):
         "diffs": diffs,
         "organisations_by_type": Organisation.select_options_by_type(),
         "topics": topics,
+        "new": False,
     }
 
     return render_template("cms/edit_measure_page.html", **context)
@@ -523,6 +524,7 @@ def send_to_review(topic_uri, subtopic_uri, measure_uri, version):
             "next_approval_state": approval_state if "APPROVE" in available_actions else None,
             "organisations_by_type": Organisation.select_options_by_type(),
             "topics": page_service.get_pages_by_type("topic"),
+            "new": False,
         }
 
         return render_template("cms/edit_measure_page.html", **context)
