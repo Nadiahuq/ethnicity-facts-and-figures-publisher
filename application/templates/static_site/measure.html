@@ -485,9 +485,9 @@
                 %}
                 <a href="{{ measure_page_data_url }}" data-on="click" data-event-category="CSV downloaded" data-event-action="Source data" data-event-label="{{ file.title }}">
                       {{ file.title }}
-                      {{ " - Spreadsheet " if file.extension() == "csv" }}
-                      {{ " - Microsoft Excel " if file.extension() == "xls" or file.extension() == "xlsx" }}
-                      {{ " - Open Document Format " if file.extension() == "odf" }}
+                      {{ " - Spreadsheet " if file.extension() == "csv" else "" }}
+                      {{ " - Microsoft Excel " if file.extension() == "xls" or file.extension() == "xlsx" else "" }}
+                      {{ " - Open Document Format " if file.extension() == "odf" else "" }}
                       ({{ file.extension() }})
                       {{ file.size|filesize }}
                 </a>

@@ -16,7 +16,7 @@
     <div class="table-container-inner">
 
       <div class="table-container">
-    <table class="table measure-data {{ 'grouped' if dimension.table.type == 'grouped' }} {{ 'grouped-rows no-sort' if dimension.table.parent_child }}">
+    <table class="table measure-data {{ 'grouped' if dimension.table.type == 'grouped' else '' }} {{ 'grouped-rows no-sort' if dimension.table.parent_child else '' }}">
     <thead>
 
       {% if (dimension.table.type == "grouped") and (dimension.table.columns|length > 1) %}
@@ -122,7 +122,7 @@
             {% endif %}
 
             {# We only want the 'line' class on the last column within each group #}
-            {% set td_class = "line" if ((loop.index != loop.length) and (loop.index % (dimension.table.columns|length) == 0)) %}
+            {% set td_class = "line" if ((loop.index != loop.length) and (loop.index % (dimension.table.columns|length) == 0)) else "" %}
 
             <td data-sort-value="{{sort_value}}" class="{{ td_class }}">{{ value|value_filter|safe }}</td>
           {% endfor %}
