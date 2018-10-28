@@ -55,7 +55,7 @@
       <form id="search-form" class="site-search" action="{{ config.GOOGLE_CUSTOM_SEARCH_ENDPOINT }}" method="get" role="search">
         <div class="content">
           <label for="site-search-text" class="site-search-label" id="site-search-label">Search</label>
-          <input type="search" name="q" id="site-search-text" title="Search facts and figures" class="js-search-focus" value="{{ current_search_value }}">
+          <input type="search" name="q" id="site-search-text" title="Search facts and figures" class="js-search-focus" value="{{ current_search_value if current_search_value is defined else '' }}">
           <input id="search-form-cx" type="hidden" name="cx" value="{{ config.GOOGLE_CUSTOM_SEARCH_ID }}">
           <input class="submit" type="submit" value="Search">
         </div>
