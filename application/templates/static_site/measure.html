@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% set preview = preview if preview is defined else none %}
+
 {% set breadcrumbs = 
   [
     {"url": url_for("static_site.index"), "text": "Ethnicity facts and figures", "event": "breadcrumb-homepage"},
