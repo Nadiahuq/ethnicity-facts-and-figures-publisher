@@ -456,7 +456,7 @@
                   {{ render_contact_details_fields(form.contact_2_name, form.contact_2_email, form.contact_2_phone, legend="Contact 2", further_explanation=False, disabled=form_disabled, class="js-second-contact-details") }}
             </div>
         </div>
-     {{ form.csrf_token }}
+     {{ form|get_csrf_token }}
     </form>
 
     {% if current_user.can(COPY_MEASURE) %}
@@ -464,7 +464,7 @@
         <div class="column-two-thirds">
             <form id="measure-action-section__copy_measure_form-{{ measure.guid }}" method="POST" action="{{ url_for('cms.copy_measure_page', topic_uri=topic.uri, subtopic_uri=subtopic.uri, measure_uri=measure.uri, version=measure.version) }}">
                 <button class="button copy-button" type="submit">Create a copy of this measure</button>
-                {{ form.csrf_token }}
+                {{ form|get_csrf_token }}
             </form>
         </div>
     </div>

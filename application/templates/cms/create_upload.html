@@ -50,7 +50,7 @@
             {% block measure_form %}
                 <form method="POST" enctype="multipart/form-data"
                       action="{{ url_for('cms.create_upload', topic_uri=topic.uri, subtopic_uri=subtopic.uri, measure_uri=measure.uri, version=measure.version ) }}">
-                    {{ form.csrf_token }}
+                    {{ form|get_csrf_token }}
                     {% block fields %}
                         {{ form.upload.label }}
                         {% if form.upload.errors %}

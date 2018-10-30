@@ -46,7 +46,7 @@
 
                         </fieldset>
                     </div>
-                    {{ form.csrf_token }}
+                    {{ form|get_csrf_token }}
                     <button type="submit" class="button" name="add">Add user</button>
                 </form>
             </div>

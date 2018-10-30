@@ -1,3 +1,6 @@
+from flask import current_app
+
+
 def format_page_guid(page_guid):
     _, name = page_guid.split("_")
     return "{}".format(name).capitalize()
@@ -64,3 +67,7 @@ def format_status(state):
         "UNPUBLISHED": "Un&#8209;published",
     }
     return status_names.get(state, state.replace("_", "&nbsp;").capitalize())
+
+
+def get_csrf_token(form):
+    return form.csrf_token if current_app.config["WTF_CSRF_ENABLED"] else ""

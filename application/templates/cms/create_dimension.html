@@ -26,7 +26,7 @@
         <div class="column-two-thirds">
         {% block measure_form %}
             <form method="POST" action="{{ url_for('cms.create_dimension', topic_uri=topic.uri, subtopic_uri=subtopic.uri, measure_uri=measure.uri, version=measure.version )}}">
-                {{ form.csrf_token }}
+                {{ form|get_csrf_token }}
                 {% block fields %}
 
                     {{ render_field(form.title, disabled=form_disabled) }}
