@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
+{% set breadcrumbs =
+  [
+    {"url": url_for("static_site.index"), "text": "Ethnicity facts and figures"},
+  ]
+%}
+
 {% block content %}
         <p>You don’t have access to that page.</p>
 {% endblock %}
