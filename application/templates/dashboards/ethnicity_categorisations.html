@@ -39,7 +39,6 @@
 
     <tbody>
       {% for ethnicity_categorisation in ethnicity_categorisations %}
-          {% set has_broad_group = ethnicity_categorisation.parent_values|length > 0 %}
             <tr>
               <th><a href="/dashboards/ethnicity-categorisations/{{ ethnicity_categorisation.id }}">{{ ethnicity_categorisation.title }}</a></th>
               <td class="numeric">{{ ethnicity_categorisation.measure_count }}</td>
