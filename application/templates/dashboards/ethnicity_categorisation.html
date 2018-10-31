@@ -49,21 +49,6 @@
           </tr>
         {%  endfor %}
     {%  endfor %}
-
-    {% for page in pages %}
-        <tr>
-        <td>{{ page.topic }}</td>
-        <td>{{ page.subtopic }}</td>
-        <td>
-          <a href="{{ page.measure_url }}">{{ page.measure }}</a>
-            {% for dimension in page.dimensions %}
-                <ul class="dimensions">
-                   <li><a href="{{ page.measure_url }}#{{ dimension.dimension|slugify_value }}">… {{ dimension.short_title }}</a></li>
-                </ul>
-            {%  endfor %}
-        </td>
-      </tr>
-    {%  endfor %}
     </tbody>
   </table>
 
