@@ -43,6 +43,26 @@ class RoleFreeUserMixin(UserMixin):
         return role in self.capabilities
 
 
+class AnonymousUser(RoleFreeUserMixin):
+    def user_name(self):
+        return "anonymous"
+
+    def is_departmental_user(self):
+        return False
+
+    def is_rdu_user(self):
+        return False
+
+    def is_admin_user(self):
+        return False
+
+    def can(self, capabilities):
+        return False
+
+    def can_access(self, page_id):
+        return False
+
+
 class User(db.Model, RoleFreeUserMixin):
     __tablename__ = "users"
 

@@ -11,7 +11,7 @@ from flask_security import SQLAlchemyUserDatastore, Security, current_user
 from raven.contrib.flask import Sentry
 
 from application import db, mail
-from application.auth.models import User
+from application.auth.models import User, AnonymousUser
 from application.data.standardisers.ethnicity_classification_finder_builder import (
     ethnicity_classification_finder_from_file
 )
@@ -104,6 +104,8 @@ def create_app(config_object):
     app.register_blueprint(dashboard_blueprint)
     app.register_blueprint(review_blueprint)
     app.register_blueprint(redirects_blueprint)
+
+    app.login_manager.anonymous_user = AnonymousUser
 
     # To stop url clash between this and the measure page url (which is made of four variables.
     # See: https://stackoverflow.com/questions/17135006/url-routing-conflicts-for-static-files-in-flask-dev-server
