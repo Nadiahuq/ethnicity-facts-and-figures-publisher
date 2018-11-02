@@ -26,10 +26,11 @@ from application.cms.exceptions import (
     PageUnEditable,
 )
 from application.cms.forms import (
-    MeasurePageForm,
+    DataSourceForm,
     DimensionForm,
-    MeasurePageRequiredForm,
     DimensionRequiredForm,
+    MeasurePageForm,
+    MeasurePageRequiredForm,
     UploadForm,
     NewVersionForm,
 )
@@ -239,30 +240,88 @@ def _diff_updates(form, page):
     return diffs
 
 
+@cms_blueprint.route("/<topic_uri>/<subtopic_uri>/<measure_uri>/<version>/temp_data_source", methods=["GET", "POST"])
+@login_required
+@user_has_access
+def temp_data_source(topic_uri, subtopic_uri, measure_uri, version):
+    topic_page, subtopic_page, measure_page = page_service.get_measure_page_hierarchy(
+        topic_uri, subtopic_uri, measure_uri, version
+    )
+
+    data_source_form = DataSourceForm(
+        prefix="data-source-1-", type_of_statistic_model=TypeOfStatistic, frequency_of_release_model=FrequencyOfRelease
+    )
+    print(request.method, request.form)
+    print(data_source_form.data)
+
+    data_source_form = DataSourceForm(
+        obj=measure_page.data_sources[0],
+        prefix="data-source-1-",
+        type_of_statistic_model=TypeOfStatistic,
+        frequency_of_release_model=FrequencyOfRelease,
+    )
+
+    print(request.method, data_source_form.data)
+    if data_source_form.validate_on_submit():
+        from application import db
+
+        data_source_form.populate_obj(measure_page.data_sources[0])
+        db.session.add(measure_page.data_sources[0])
+        db.session.commit()
+
+        flash("Updated data source")
+
+    return render_template(
+        "temp_data_source_form.html",
+        topic_uri=topic_uri,
+        subtopic_uri=subtopic_uri,
+        measure_uri=measure_uri,
+        version=version,
+        topic=topic_page,
+        measure=measure_page,
+        organisations_by_type=Organisation.select_options_by_type(),
+        form=data_source_form,
+    )
+
+
 @cms_blueprint.route("/<topic_uri>/<subtopic_uri>/<measure_uri>/<version>/edit", methods=["GET", "POST"])
 @login_required
 @user_has_access
 def edit_measure_page(topic_uri, subtopic_uri, measure_uri, version):
+    data_source_form = data_source_2_form = None
+    administrative_data = survey_data = False
+    secondary_source_1_administrative_data = secondary_source_1_survey_data = False
+
     *_, measure_page = page_service.get_measure_page_hierarchy(topic_uri, subtopic_uri, measure_uri, version)
     topics = page_service.get_pages_by_type("topic")
     topics.sort(key=lambda page: page.title)
     diffs = {}
 
-    if measure_page.type_of_data is not None:
+    if len(measure_page.data_sources) > 0:
+        data_source_form = DataSourceForm(
+            obj=measure_page.data_sources[0],
+            prefix="data-source-1-",
+            type_of_statistic_model=TypeOfStatistic,
+            frequency_of_release_model=FrequencyOfRelease,
+        )
+    elif measure_page.type_of_data is not None:
         administrative_data = True if TypeOfData.ADMINISTRATIVE in measure_page.type_of_data else False
         survey_data = True if TypeOfData.SURVEY in measure_page.type_of_data else False
-    else:
-        administrative_data = survey_data = False
 
-    if measure_page.secondary_source_1_type_of_data is not None:
+    if len(measure_page.data_sources) > 1:
+        data_source_2_form = DataSourceForm(
+            obj=measure_page.data_sources[1],
+            prefix="data-source-2-",
+            type_of_statistic_model=TypeOfStatistic,
+            frequency_of_release_model=FrequencyOfRelease,
+        )
+    elif measure_page.secondary_source_1_type_of_data is not None:
         secondary_source_1_administrative_data = (
             True if TypeOfData.ADMINISTRATIVE in measure_page.secondary_source_1_type_of_data else False
         )
         secondary_source_1_survey_data = (
             True if TypeOfData.SURVEY in measure_page.secondary_source_1_type_of_data else False
         )
-    else:
-        secondary_source_1_administrative_data = secondary_source_1_survey_data = False
 
     if measure_page.area_covered is not None:
         if UKCountry.UK in measure_page.area_covered:
@@ -365,6 +424,8 @@ def edit_measure_page(topic_uri, subtopic_uri, measure_uri, version):
         "topic": measure_page.parent.parent,
         "subtopic": measure_page.parent,
         "measure": measure_page,
+        "data_source_form": data_source_form,
+        "data_source_2_form": data_source_2_form,
         "status": current_status,
         "available_actions": available_actions,
         "next_approval_state": approval_state if "APPROVE" in available_actions else None,

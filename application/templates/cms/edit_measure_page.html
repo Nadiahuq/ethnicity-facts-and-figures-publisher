@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "_shared/_breadcrumb.html" import breadcrumb %}
 {% from "_shared/_page_title.html" import page_title %}
+{% from "cms/_data_source_form.html" import render_data_source_form %}
 
 {% from "cms/forms.html" import render_field, render_textarea_field, render_contact_details_fields,
                                 render_checkboxes, render_radio_field, render_department_select %}
@@ -10,6 +11,7 @@
     {"url": url_for('static_site.topic', topic_uri=topic.uri), "text": topic.title},
   ]
 %}
+{% set form_disabled = not (measure.status == "DRAFT" or new) %}
 
 {% block bodyClasses %}rd_cms{% endblock %}
 {% block pageTitle %}{{ page_title(measure.title, error=(form.errors|length > 0)) }}{% endblock %}
@@ -56,8 +58,6 @@
 {% endblock %}
 
 {% block content %}
-    {%  set form_disabled = measure.status != 'DRAFT' and not new %}
-
     <form method="POST" action="{% if new %}{{ url_for('cms.create_measure_page', topic_uri=topic.uri, subtopic_uri=subtopic.uri) }}{% else %}{{ url_for('cms.edit_measure_page', topic_uri=topic.uri, subtopic_uri=subtopic.uri, measure_uri=measure.uri, version=measure.version) }}{% endif %}">
 
         <!-- version info -->
@@ -304,43 +304,48 @@
                         <h3 class="heading-small">Primary source</h3>
                   </legend>
 
-                  {{ render_field(form.source_text, disabled=form_disabled, diffs=diffs) }}
+                  {% if data_source_form %}
+                    {{ render_data_source_form(data_source_form=data_source_form, organisations_by_type=organisations_by_type, form_disabled=form_disabled, diffs=diffs) }}
+                  {% else %}
+                    {{ render_field(form.source_text, disabled=form_disabled, diffs=diffs) }}
 
-                  {{ render_checkboxes([form.administrative_data, form.survey_data],
-                                        disabled=form_disabled,
-                                        legend='Type of data',
-                                        errors=form.administrative_data.errors + form.survey_data.errors)}}
+                    {{ render_checkboxes([form.administrative_data, form.survey_data],
+                                          disabled=form_disabled,
+                                          legend='Type of data',
+                                          errors=form.administrative_data.errors + form.survey_data.errors)}}
 
-                  {{ render_radio_field(form,
-                                        form.type_of_statistic_id,
-                                        name='type_of_statistic',
-                                        legend='Type of statistic',
-                                        disabled=form_disabled)}}
+                    {{ render_radio_field(form,
+                                          form.type_of_statistic_id,
+                                          name='type_of_statistic',
+                                          legend='Type of statistic',
+                                          disabled=form_disabled)}}
 
-                  {{ render_department_select('Publisher',
-                                              form.department_source,
-                                              measure.department_source_id if measure else None,
-                                              organisations_by_type,
-                                              disabled=form_disabled) }}
+                    {{ render_department_select('Publisher',
+                                                form.department_source,
+                                                measure.department_source_id if measure else None,
+                                                organisations_by_type,
+                                                disabled=form_disabled,
+                                                field_id="department-source",
+                                                field_name="department_source") }}
 
-                  {{ render_field(form.source_url, disabled=form_disabled, diffs=diffs) }}
+                    {{ render_field(form.source_url, disabled=form_disabled, diffs=diffs) }}
 
-                  {{ render_field(form.published_date, disabled=form_disabled, class="date", diffs=diffs) }}
+                    {{ render_field(form.published_date, disabled=form_disabled, class="date", diffs=diffs) }}
 
-                  {{ render_textarea_field(form.note_on_corrections_or_updates, disabled=form_disabled, diffs=diffs) }}
+                    {{ render_textarea_field(form.note_on_corrections_or_updates, disabled=form_disabled, diffs=diffs) }}
 
-                  {{ render_radio_field(form,
-                                        form.frequency_id,
-                                        legend='Publication frequency',
-                                        name='frequency',
-                                        disabled=form_disabled,
-                                        has_other=True)}}
+                    {{ render_radio_field(form,
+                                          form.frequency_id,
+                                          legend='Publication frequency',
+                                          name='frequency',
+                                          disabled=form_disabled,
+                                          has_other=True)}}
 
-                  {{ render_textarea_field(form.data_source_purpose, disabled=form_disabled, diffs=diffs) }}
+                    {{ render_textarea_field(form.data_source_purpose, disabled=form_disabled, diffs=diffs) }}
+                  {% endif %}
 
                 </fieldset>
 
-                <!-- TODO: maybe have js clear the form when remove is clicked, so that a subsequent save will clear data in back end -->
                 <div class="js-secondary-sources">
 
                   <fieldset class="source">
@@ -348,41 +353,45 @@
                       <h3 class="heading-small">Secondary source</h3>
                     </legend>
 
-                    {{ render_field(form.secondary_source_1_title, disabled=form_disabled, diffs=diffs) }}
+                    {% if data_source_form_2 %}
+                      {{ render_data_source_form(data_source_form=data_source_form_2, organisations_by_type=organisations_by_type, form_disabled=form_disabled, diffs=diffs) }}
+                    {% else %}
+                      {{ render_field(form.secondary_source_1_title, disabled=form_disabled, diffs=diffs) }}
 
-                    {{ render_checkboxes([form.secondary_source_1_administrative_data, form.secondary_source_1_survey_data],
-                                        disabled=form_disabled,
-                                        legend='Type of data',
-                                        errors=form.secondary_source_1_administrative_data.errors + form.secondary_source_1_survey_data.errors)}}
-
-                    {{ render_radio_field(form,
-                                          form.secondary_source_1_type_of_statistic_id,
-                                          legend='Type of statistic',
-                                          disabled=form_disabled)}}
-
-                    {{ render_department_select('Publisher',
-                                                form.secondary_source_1_publisher,
-                                                measure.secondary_source_1_publisher_id if measure else None,
-                                                organisations_by_type,
-                                                disabled=form_disabled,
-                                                field_name='secondary-source-1-publisher') }}
-
-
-                    {{ render_field(form.secondary_source_1_url, disabled=form_disabled, diffs=diffs) }}
-
-                    {{ render_field(form.secondary_source_1_date, disabled=form_disabled,class="date", diffs=diffs) }}
-
-                    {{ render_textarea_field(form.secondary_source_1_note_on_corrections_or_updates, disabled=form_disabled, diffs=diffs) }}
-
-                    {{ render_radio_field(form,
-                                          form.secondary_source_1_frequency_id,
-                                          legend='Publication frequency',
-                                          name='secondary_source_1_frequency',
+                      {{ render_checkboxes([form.secondary_source_1_administrative_data, form.secondary_source_1_survey_data],
                                           disabled=form_disabled,
-                                          has_other=True)}}
+                                          legend='Type of data',
+                                          errors=form.secondary_source_1_administrative_data.errors + form.secondary_source_1_survey_data.errors)}}
 
-                    {{ render_textarea_field(form.secondary_source_1_data_source_purpose, disabled=form_disabled, diffs=diffs) }}
+                      {{ render_radio_field(form,
+                                            form.secondary_source_1_type_of_statistic_id,
+                                            legend='Type of statistic',
+                                            disabled=form_disabled)}}
 
+                      {{ render_department_select('Publisher',
+                                                  form.secondary_source_1_publisher,
+                                                  measure.secondary_source_1_publisher_id if measure else None,
+                                                  organisations_by_type,
+                                                  disabled=form_disabled,
+                                                  field_id='secondary-source-1-publisher',
+                                                  field_name='secondary_source_1_publisher') }}
+
+
+                      {{ render_field(form.secondary_source_1_url, disabled=form_disabled, diffs=diffs) }}
+
+                      {{ render_field(form.secondary_source_1_date, disabled=form_disabled,class="date", diffs=diffs) }}
+
+                      {{ render_textarea_field(form.secondary_source_1_note_on_corrections_or_updates, disabled=form_disabled, diffs=diffs) }}
+
+                      {{ render_radio_field(form,
+                                            form.secondary_source_1_frequency_id,
+                                            legend='Publication frequency',
+                                            name='secondary_source_1_frequency',
+                                            disabled=form_disabled,
+                                            has_other=True)}}
+
+                      {{ render_textarea_field(form.secondary_source_1_data_source_purpose, disabled=form_disabled, diffs=diffs) }}
+                    {% endif %}
                   </fieldset>
                 </div>
             </div>
@@ -475,7 +484,7 @@
 
     <script>
 
-        {%  if measure.status == 'DRAFT' or new %}
+        {% if not form_disabled %}
 
             document.addEventListener('DOMContentLoaded', function() {
 

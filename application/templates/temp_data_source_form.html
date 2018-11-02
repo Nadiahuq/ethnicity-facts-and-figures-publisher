@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_shared/_breadcrumb.html" import breadcrumb %}
+{% from "_shared/_page_title.html" import page_title %}
+{% from "cms/_data_source_form.html" import render_data_source_form %}
+
+{% set breadcrumbs =
+  [
+    {"url": url_for('static_site.topic', topic_uri=topic.uri), "text": topic.title},
+  ]
+%}
+
+{% block bodyClasses %}rd_cms{% endblock %}
+{% block pageTitle %}{{ page_title(measure.title, error=(form.errors|length > 0)) }}{% endblock %}
+
+{% block content %}
+    <div class="grid-row">
+      <div class="column-two-thirds">
+        <h2 class="heading-medium">Data sources</h2>
+        <fieldset class="source">
+          <legend><h3 class="heading-small">Primary source</h3></legend>
+
+          <form method="POST" action="{{ url_for('cms.temp_data_source',  topic_uri=topic_uri, subtopic_uri=subtopic_uri, measure_uri=measure_uri, version=measure.version) }}">
+            {{ form.csrf_token }}
+            {{ render_data_source_form(form, organisations_by_type=organisations_by_type, form_disabled=False, diffs=diffs) }}
+            <input type="submit">Submit form</form>
+          </form>
+        </fieldset>
+      </div>
+    </div>
+{% endblock %}
+
+{% block bodyEnd %}
+  {{ super() }}
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var publisherFields = document.querySelectorAll('select.publisher');
+      for (var i = 0; i < publisherFields.length; i++) {
+            govukGovernmentOrganisationsAutocomplete({
+                selectElement: publisherFields[i],
+                showAllValues: false,
+                minLength: 2,
+                defaultValue: ''
+            });
+        }
+    });
+  </script>
+{% endblock %}

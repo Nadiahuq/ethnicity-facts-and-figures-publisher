@@ -61,26 +61,26 @@ def migrate_data_sources(app):
             for page in Page.query.filter(Page.page_type == "measure"):
                 print(f"Checking data sources for {page}")
 
-                if not page.data_source:
+                if len(page.data_sources) < 1:
                     data_source_attrs = get_page_attributes_collapsed_to_none(page, DATA_SOURCE_1_ATTRIBUTE_MAP)
 
                     if any(value for value in data_source_attrs.values()):
                         print(f"Found primary data source: {data_source_attrs}")
 
                         new_data_source = create_new_data_source(page, DATA_SOURCE_1_ATTRIBUTE_MAP)
-                        page.data_source = new_data_source
+                        page.data_sources = [new_data_source]
 
                         db.session.add(page)
                         db.session.add(new_data_source)
 
-                if not page.data_source_2:
+                if len(page.data_sources) < 2:
                     data_source_2_attrs = get_page_attributes_collapsed_to_none(page, DATA_SOURCE_2_ATTRIBUTE_MAP)
 
                     if any(value for value in data_source_2_attrs.values()):
                         print(f"Found secondary data source: {data_source_2_attrs}")
 
                         new_data_source = create_new_data_source(page, DATA_SOURCE_2_ATTRIBUTE_MAP)
-                        page.data_source_2 = new_data_source
+                        page.data_sources.append(new_data_source)
 
                         db.session.add(page)
                         db.session.add(new_data_source)

@@ -1,9 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, FileField, RadioField, HiddenField, BooleanField
+from wtforms import StringField, TextAreaField, FileField, RadioField, HiddenField, BooleanField, FormField
 from wtforms.fields.html5 import DateField, EmailField, TelField, URLField
 from wtforms.validators import DataRequired, Optional, ValidationError
 
 from application.cms.models import TypeOfData, UKCountry
+from application.cms.form_fields import RDUCheckboxField, RDURadioField, RDUStringField, RDUURLField
 
 
 class TypeOfDataRequiredValidator:
@@ -27,6 +28,8 @@ class AreaCoveredRequiredValidator:
 
 
 class FrequencyOtherRequiredValidator:
+    """DEPRECATED: Compatibility validator for old measure pages, before data source was separated"""
+
     def __call__(self, form, field):
         message = "Other selected but no value has been entered"
         if form.frequency_id.data and form.frequency_id.choices[form.frequency_id.data - 1][1].lower() == "other":
@@ -45,6 +48,65 @@ class FrequencyOtherRequiredValidator:
                 if not form.secondary_source_1_frequency_other.data:
                     form.errors["secondary_source_1_frequency_other"] = ["This field is required"]
                     raise ValidationError(message)
+
+
+class FrequencyOfReleaseOtherRequiredValidator:
+    def __call__(self, form, field):
+        message = "Other selected but no value has been entered"
+
+        if (
+            form.frequency_of_release_id.data
+            and form.frequency_of_release_id.choices[form.frequency_of_release_id.data - 1][1].lower() == "other"
+        ):
+            if not form.frequency_of_release_other.data:
+                form.errors["frequency_of_release_other"] = ["This field is required"]
+                raise ValidationError(message)
+
+
+class DataSourceForm(FlaskForm):
+    TYPE_OF_DATA_CHOICES = tuple([(e.name, e.value) for e in TypeOfData])
+
+    remove_data_source = HiddenField()  # Updated via JS if a user wants to remove the data source
+
+    title = RDUStringField(label="Title of data source")
+
+    type_of_data = RDUCheckboxField(label="Type of data", choices=TYPE_OF_DATA_CHOICES)
+    type_of_statistic_id = RDURadioField(label="Type of statistic", coerce=int, validators=[Optional()])
+
+    publisher_id = RDUStringField(label="Publisher")
+    external_url = RDUURLField(label="URL")
+    publication_date = RDUStringField(label="Publication release date")
+    note_on_corrections_or_updates = TextAreaField(label="Note on corrections or updates")
+
+    frequency_of_release_other = RDUStringField(label="Other")
+    frequency_of_release_id = RDURadioField(
+        label="Publication frequency", coerce=int, validators=[Optional(), FrequencyOfReleaseOtherRequiredValidator()]
+    )
+
+    purpose = TextAreaField(label="Purpose of data source")
+
+    def __init__(self, *args, **kwargs):
+        super(DataSourceForm, self).__init__(*args, **kwargs)
+
+        type_of_statistic_choices = []
+        type_of_statistic_model = kwargs.get("type_of_statistic_model", None)
+        if type_of_statistic_model:
+            type_of_statistic_choices = type_of_statistic_model.query.order_by("position").all()
+        self.type_of_statistic_id.choices = [(choice.id, choice.internal) for choice in type_of_statistic_choices]
+
+        frequency_of_release_choices = []
+        frequency_of_release_model = kwargs.get("frequency_of_release_model", None)
+        if frequency_of_release_model:
+            frequency_of_release_choices = frequency_of_release_model.query.order_by("position").all()
+        self.frequency_of_release_id.choices = [
+            (choice.id, choice.description) for choice in frequency_of_release_choices
+        ]
+        self.frequency_of_release_id.set_other_field(self.frequency_of_release_other)
+
+    def get_other(self, field_name):
+        for field in self:
+            if field.name == field_name:
+                return field.other_field
 
 
 class MeasurePageForm(FlaskForm):
@@ -92,6 +154,9 @@ class MeasurePageForm(FlaskForm):
     lowest_level_of_geography_id = RadioField(label="Lowest level of geography", validators=[Optional()])
     suppression_and_disclosure = TextAreaField(label="Suppression rules and disclosure control")
     estimation = TextAreaField(label="Rounding")
+
+    # data_source = FormField(DataSourceForm)
+    # data_source_2 = FormField(DataSourceForm)
 
     # Primary source
     source_text = StringField(label="Title of data source")

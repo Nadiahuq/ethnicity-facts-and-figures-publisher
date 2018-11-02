@@ -3,15 +3,14 @@
 function showHideControl(element) {
 
   if (
-      document.querySelectorAll &&
-      Function.prototype.bind &&
-      ('classList' in document.createElement('_'))
-    ) {
+    document.querySelectorAll &&
+    Function.prototype.bind &&
+    ('classList' in document.createElement('_'))
+  ) {
 
     var element = element;
     var elementControlled = null;
     setup()
-
   }
 
   function setup() {
